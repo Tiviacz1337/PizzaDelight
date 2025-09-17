@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "age=0": { "model": "pizzadelight:block/cheese_block" },
+    "age=1": { "model": "pizzadelight:block/cheese_block_slice1" },
+    "age=2": { "model": "pizzadelight:block/cheese_block_slice2" }
+  }
+}

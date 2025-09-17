@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "XCX",
+    "XXX"
+  ],
+  "key": {
+    "C": {
+      "item": "minecraft:brick"
+    },
+    "X":
+    {
+      "tag": "forge:ingots/iron"
+    }
+  },
+  "result": {
+    "item": "pizzadelight:basin"
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/handheld",
+  "textures": {
+    "layer0": "pizzadelight:item/diamond_pizza_peel"
+  }
+}

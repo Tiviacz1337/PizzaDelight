@@ -1,0 +1,17 @@
+{
+  "type": "farmersdelight:cutting",
+  "ingredients": [
+    {
+      "tag": "pizzadelight:dough"
+    }
+  ],
+  "result": [
+    {
+      "count": 1,
+      "item": "pizzadelight:raw_pizza"
+    }
+  ],
+  "tool": {
+    "item": "pizzadelight:rolling_pin"
+  }
+}

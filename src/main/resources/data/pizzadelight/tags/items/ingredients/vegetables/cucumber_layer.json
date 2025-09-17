@@ -1,0 +1,21 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "culturaldelights:cut_cucumber",
+      "required": false
+    },
+    {
+      "id": "culturaldelights:cucumber",
+      "required": false
+    },
+    {
+      "id": "culturaldelights:pickle",
+      "required": false
+    },
+    {
+      "id": "culturaldelights:cut_pickle",
+      "required": false
+    }
+  ]
+}

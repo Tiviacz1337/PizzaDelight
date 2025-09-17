@@ -1,0 +1,20 @@
+{
+  "replace": false,
+  "values": [
+    "#pizzadelight:ingredients/fruits/olive_layer",
+    "#pizzadelight:ingredients/fruits/pineapple_layer",
+    "#pizzadelight:ingredients/meats/beef_layer",
+    "#pizzadelight:ingredients/meats/chicken_layer",
+    "#pizzadelight:ingredients/meats/ham_layer",
+    "#pizzadelight:ingredients/mushrooms/mushroom_layer",
+    "#pizzadelight:ingredients/sauces/tomato_sauce_layer",
+    "#pizzadelight:ingredients/sauces/hot_sauce_layer",
+    "#pizzadelight:ingredients/vegetables/broccoli_layer",
+    "#pizzadelight:ingredients/vegetables/corn_layer",
+    "#pizzadelight:ingredients/vegetables/cucumber_layer",
+    "#pizzadelight:ingredients/vegetables/onion_layer",
+    "#pizzadelight:ingredients/vegetables/pepper_layer",
+    "#pizzadelight:ingredients/vegetables/tomato_layer",
+    "#pizzadelight:ingredients/cheese_layer"
+  ]
+}

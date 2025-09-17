@@ -1,0 +1,37 @@
+{
+  "parent": "pizzadelight:pizza_station",
+  "display": {
+    "icon": {
+      "item": "pizzadelight:rolling_pin"
+    },
+    "title": {
+      "translate": "advancements.pizzadelight.rolling_pin.title"
+    },
+    "description": {
+      "translate": "advancements.pizzadelight.rolling_pin.description"
+    },
+    "frame": "task",
+    "show_toast": false,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "rolling_pin": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "pizzadelight:rolling_pin"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "rolling_pin"
+    ]
+  ]
+}

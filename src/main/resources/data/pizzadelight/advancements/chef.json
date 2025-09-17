@@ -1,0 +1,55 @@
+{
+  "parent": "pizzadelight:root",
+  "display": {
+    "icon": {
+      "item": "pizzadelight:chef_hat"
+    },
+    "title": {
+      "translate": "advancements.pizzadelight.chef.title"
+    },
+    "description": {
+      "translate": "advancements.pizzadelight.chef.description"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "chef": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "pizzadelight:chef_hat"
+            ]
+          },
+          {
+            "items": [
+              "pizzadelight:chef_shirt"
+            ]
+          },
+          {
+            "items": [
+              "pizzadelight:chef_leggings"
+            ]
+          },
+          {
+            "items": [
+              "pizzadelight:chef_boots"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "chef"
+    ]
+  ],
+  "rewards": {
+    "experience": 100
+  }
+}

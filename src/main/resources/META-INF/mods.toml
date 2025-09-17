@@ -1,0 +1,44 @@
+modLoader="javafml"
+
+loaderVersion="[47,)"
+
+license="All Rights Reserved"
+
+#issueTrackerURL="https://github.com/Tiviacz1337/PizzaCraft/issues"
+
+[[mods]]
+
+modId="pizzadelight"
+
+version="1.0.0"
+
+displayName="Pizza Delight"
+
+#updateJSONURL="https://gist.githubusercontent.com/Tiviacz1337/b916e3981957f1e6f2de99ea0aa328fa/raw"
+
+displayURL="https://www.curseforge.com/minecraft/mc-mods/pizza-delight"
+
+authors="Tiviacz1337, SirSquidly"
+
+description="Brings the tasty pizza to Minecraft as Farmer's Delight Addon!"
+
+[[dependencies.pizzadelight]]
+    modId="farmersdelight"
+    mandatory=true
+    versionRange="[1.20.1-1.2.2,)"
+    ordering="AFTER"
+    side="BOTH"
+
+[[dependencies.pizzadelight]]
+    modId="forge"
+    mandatory=true
+    versionRange="[47,)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.pizzadelight]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.20.1,1.21)"
+    ordering="NONE"
+    side="BOTH"

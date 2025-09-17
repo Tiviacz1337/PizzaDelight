@@ -1,0 +1,37 @@
+{
+  "parent": "pizzadelight:cheese_block",
+  "display": {
+    "icon": {
+      "item": "pizzadelight:cheese"
+    },
+    "title": {
+      "translate": "advancements.pizzadelight.cheese.title"
+    },
+    "description": {
+      "translate": "advancements.pizzadelight.cheese.description"
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "cheese": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "pizzadelight:cheese"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "cheese"
+    ]
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "parent": "pizzadelight:raw_pizza",
+  "display": {
+    "icon": {
+      "item": "pizzadelight:pizza"
+    },
+    "title": {
+      "translate": "advancements.pizzadelight.pizza.title"
+    },
+    "description": {
+      "translate": "advancements.pizzadelight.pizza.description"
+    },
+    "frame": "task",
+    "show_toast": false,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "pizza": {
+      "trigger": "minecraft:item_used_on_block",
+      "conditions": {
+        "location": [
+          {
+            "condition": "minecraft:block_state_property",
+            "block": "pizzadelight:pizza"
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "pizza"
+    ]
+  ]
+}

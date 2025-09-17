@@ -1,0 +1,89 @@
+{
+  "parent": "pizzadelight:raw_pizza",
+  "display": {
+    "icon": {
+      "item": "pizzadelight:iron_pizza_peel"
+    },
+    "title": {
+      "translate": "advancements.pizzadelight.pizza_peel.title"
+    },
+    "description": {
+      "translate": "advancements.pizzadelight.pizza_peel.description"
+    },
+    "frame": "task",
+    "show_toast": false,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "stone_pizza_peel": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "pizzadelight:stone_pizza_peel"
+            ]
+          }
+        ]
+      }
+    },
+    "golden_pizza_peel": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "pizzadelight:golden_pizza_peel"
+            ]
+          }
+        ]
+      }
+    },
+    "iron_pizza_peel": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "pizzadelight:iron_pizza_peel"
+            ]
+          }
+        ]
+      }
+    },
+    "diamond_pizza_peel": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "pizzadelight:diamond_pizza_peel"
+            ]
+          }
+        ]
+      }
+    },
+    "netherite_pizza_peel": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "pizzadelight:netherite_pizza_peel"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "stone_pizza_peel",
+      "golden_pizza_peel",
+      "iron_pizza_peel",
+      "diamond_pizza_peel",
+      "netherite_pizza_peel"
+    ]
+  ]
+}

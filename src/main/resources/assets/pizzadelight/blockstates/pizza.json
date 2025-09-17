@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "slices=0": { "model": "pizzadelight:block/pizza" },
+    "slices=1": { "model": "pizzadelight:block/pizza_slice1" },
+    "slices=2": { "model": "pizzadelight:block/pizza_slice2" },
+    "slices=3": { "model": "pizzadelight:block/pizza_slice3" }
+  }
+}

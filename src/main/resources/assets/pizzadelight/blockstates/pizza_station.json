@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "facing=north": { "model": "pizzadelight:block/pizza_station" },
+    "facing=east": { "model": "pizzadelight:block/pizza_station", "y": 90 },
+    "facing=south": { "model": "pizzadelight:block/pizza_station", "y": 180 },
+    "facing=west": { "model": "pizzadelight:block/pizza_station", "y": 270 }
+  }
+}

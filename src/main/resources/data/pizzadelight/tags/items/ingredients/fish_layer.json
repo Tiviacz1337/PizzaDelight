@@ -1,0 +1,15 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:cod",
+    "minecraft:cooked_cod",
+    "minecraft:salmon",
+    "minecraft:cooked_salmon",
+    "minecraft:tropical_fish",
+    "minecraft:pufferfish",
+    "farmersdelight:cod_slice",
+    "farmersdelight:cooked_cod_slice",
+    "farmersdelight:salmon_slice",
+    "farmersdelight:cooked_salmon_slice"
+  ]
+}

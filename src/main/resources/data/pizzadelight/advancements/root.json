@@ -1,0 +1,21 @@
+{
+  "display": {
+    "icon": {
+      "item": "pizzadelight:pizza_slice"
+    },
+    "title": {
+      "translate": "advancements.pizzadelight.root.title"
+    },
+    "description": {
+      "translate": "advancements.pizzadelight.root.description"
+    },
+    "background": "minecraft:textures/gui/advancements/backgrounds/husbandry.png",
+    "show_toast": false,
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "tick": {
+      "trigger": "minecraft:tick"
+    }
+  }
+}

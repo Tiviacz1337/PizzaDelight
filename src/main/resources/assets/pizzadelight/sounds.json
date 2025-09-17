@@ -1,0 +1,19 @@
+{
+  "block.pizza.sizzling": {
+    "category": "block",
+    "sounds": [
+        "pizzadelight:block/pizza/pizza_sizzling"
+    ],
+    "subtitle": "subtitles.pizzadelight.pizza.sizzling"
+  },
+  "block.basin.fermenting": {
+    "category": "block",
+    "sounds": [
+      {
+        "name": "block.fungus.place",
+        "type": "event"
+      }
+    ],
+    "subtitle": "subtitles.pizzadelight.basin.fermenting"
+  }
+}

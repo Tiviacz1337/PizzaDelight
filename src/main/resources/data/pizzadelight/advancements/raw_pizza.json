@@ -1,0 +1,37 @@
+{
+  "parent": "pizzadelight:rolling_pin",
+  "display": {
+    "icon": {
+      "item": "pizzadelight:raw_pizza"
+    },
+    "title": {
+      "translate": "advancements.pizzadelight.raw_pizza.title"
+    },
+    "description": {
+      "translate": "advancements.pizzadelight.raw_pizza.description"
+    },
+    "frame": "task",
+    "show_toast": false,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "raw_pizza": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "pizzadelight:raw_pizza"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "raw_pizza"
+    ]
+  ]
+}
