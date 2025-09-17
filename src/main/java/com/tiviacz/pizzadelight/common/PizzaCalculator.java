@@ -69,18 +69,7 @@ public class PizzaCalculator {
         return stack;
     }
 
-    @Nullable
-    public MobEffectInstance getEffect() {
-
-        int pointer = this.uniqueness - 9;
-
-        if(pointer == 0) return new MobEffectInstance(ModEffects.NOURISHMENT.get(), 6000);
-        if(pointer >= -3 && pointer < 0) return new MobEffectInstance(ModEffects.NOURISHMENT.get(), 3600);
-        if(pointer >= -6 && pointer < -3) return new MobEffectInstance(ModEffects.COMFORT.get(), 1200);
-        else return null;
-    }
-
-    public ItemStack getResultSliceStack(ItemStack stack) {
+    /*public ItemStack getResultSliceStack(ItemStack stack) {
         resetStats();
         ingredients.setStackInSlot(9, sauce);
 
@@ -100,6 +89,17 @@ public class PizzaCalculator {
         }
 
         return stack;
+    }*/
+
+    @Nullable
+    public MobEffectInstance getEffect() {
+
+        int pointer = this.uniqueness - 9;
+
+        if(pointer == 0) return new MobEffectInstance(ModEffects.NOURISHMENT.get(), 6000);
+        if(pointer >= -3 && pointer < 0) return new MobEffectInstance(ModEffects.NOURISHMENT.get(), 3600);
+        if(pointer >= -6 && pointer < -3) return new MobEffectInstance(ModEffects.COMFORT.get(), 1200);
+        else return null;
     }
 
     public void processFood(ItemStack stack) {

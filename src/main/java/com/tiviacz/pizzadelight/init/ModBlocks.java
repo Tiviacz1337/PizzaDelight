@@ -22,10 +22,6 @@ public class ModBlocks {
     public static final RegistryObject<Block> PIZZA_STATION = registerBlock("pizza_station", () -> new PizzaStationBlock(BlockBehaviour.Properties.copy(Blocks.STONE).mapColor(MapColor.STONE).strength(1.5F, 6.0F)));
     public static final RegistryObject<Block> BASIN = registerBlock("basin", () -> new BasinBlock(Block.Properties.copy(Blocks.IRON_BLOCK).mapColor(MapColor.COLOR_BLACK).strength(1.5F, 6.0F)));
 
-    //Crops
-    //public static final RegistryObject<Block> WILD_PEPPERS = registerBlock("wild_peppers", () -> new WildCropBlock(MobEffects.GLOWING, 6, BlockBehaviour.Properties.copy(Blocks.TALL_GRASS)));
-    //public static final RegistryObject<Block> PEPPER_CROP = registerBlock("peppers", () -> new PepperBlock(BlockBehaviour.Properties.copy(Blocks.WHEAT)));
-
     public static RegistryObject<Block> registerBlock(final String name, Supplier<Block> block) {
         return BLOCKS.register(name, block);
     }

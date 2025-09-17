@@ -38,7 +38,7 @@ public class PizzaStationResultSlot extends SlotItemHandler {
 
             if(!itemStack.isEmpty()) {
                 boolean isPotion = itemStack.getItem() instanceof PotionItem;
-                boolean isSoup = itemStack.getItem() instanceof BowlFoodItem;
+                boolean isSauce = itemStack.getItem() instanceof BowlFoodItem;
 
                 ItemStack container = itemStack.getCraftingRemainingItem();
                 itemStack.shrink(1);
@@ -47,7 +47,7 @@ public class PizzaStationResultSlot extends SlotItemHandler {
                 if(container.isEmpty()) {
                     if(isPotion) {
                         container = new ItemStack(Items.GLASS_BOTTLE);
-                    } else if(isSoup) {
+                    } else if(isSauce) {
                         container = new ItemStack(Items.BOWL);
                     }
                 }

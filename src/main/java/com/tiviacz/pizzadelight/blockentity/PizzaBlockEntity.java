@@ -18,6 +18,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
+import net.minecraft.world.Nameable;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -36,7 +37,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Optional;
 
-public class PizzaBlockEntity extends BaseBlockEntity implements MenuProvider {
+public class PizzaBlockEntity extends BaseBlockEntity implements MenuProvider, Nameable {
     public ItemStackHandler inventory = createHandler(NonNullList.withSize(10, ItemStack.EMPTY));
     private Component customName = null;
     private int bakingTime = 0;
@@ -45,8 +46,8 @@ public class PizzaBlockEntity extends BaseBlockEntity implements MenuProvider {
 
     private final LazyOptional<ItemStackHandler> inventoryCapability = LazyOptional.of(() -> this.inventory);
 
-    private final String BAKING_TIME = "BakingTime";
-    private final String CUSTOM_NAME = "CustomName";
+    private static final String BAKING_TIME = "BakingTime";
+    private static final String CUSTOM_NAME = "CustomName";
 
     public PizzaBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntityTypes.PIZZA.get(), pos, state);
@@ -100,14 +101,6 @@ public class PizzaBlockEntity extends BaseBlockEntity implements MenuProvider {
         NBTUtils.setSaturation(stack, calculator.getSaturation());
         NBTUtils.setEffects(stack, calculator.getEffects());
 
-        //FoodProperties.Builder foodProperties = new FoodProperties.Builder().nutrition(allNutrition / 4).saturationMod(calculator.getSaturation());
-
-        //Mark for effects - add always edible if contains effects
-        //if(!calculator.getEffects().isEmpty()) {
-        //foodProperties.alwaysEat();
-        //}
-
-        //stack.set(DataComponents.FOOD, foodProperties.build());
         return stack;
     }
 
@@ -233,8 +226,19 @@ public class PizzaBlockEntity extends BaseBlockEntity implements MenuProvider {
     // ======== CONTAINER ========
 
     @Override
-    public Component getDisplayName() {
+    public Component getName() {
         return this.customName != null ? this.customName : this.getDefaultName();
+    }
+
+    @Nullable
+    @Override
+    public Component getCustomName() {
+        return this.customName;
+    }
+
+    @Override
+    public Component getDisplayName() {
+        return this.getName();
     }
 
     public Component getDefaultName() {

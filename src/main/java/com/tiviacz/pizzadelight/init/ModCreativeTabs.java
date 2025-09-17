@@ -19,83 +19,6 @@ public class ModCreativeTabs {
 
     public static ItemStack createIcon() {
         ItemStack stack = ModItems.PIZZA_SLICE.get().getDefaultInstance();
-        //ItemStackHandler handler = new ItemStackHandler(10);
-        //handler.setStackInSlot(0, ModItems.CHEESE.get().getDefaultInstance());
-        //NBTUtils.saveInventoryToStack(stack, handler);
-        return stack;
-    }
-
-    public static ItemStack createPizza() {
-        ItemStackHandler handler = new ItemStackHandler(10);
-        handler.setStackInSlot(0, ModItems.CHEESE.get().getDefaultInstance());
-        PizzaCalculator calc = new PizzaCalculator(vectorwing.farmersdelight.common.registry.ModItems.WHEAT_DOUGH.get().getDefaultInstance(), ItemStack.EMPTY, handler);
-        return calc.getResultStackBlock(ModItems.PIZZA.get().getDefaultInstance());
-    }
-
-    public static ItemStack createSlice() {
-        ItemStackHandler handler = new ItemStackHandler(10);
-        handler.setStackInSlot(0, ModItems.CHEESE.get().getDefaultInstance());
-        PizzaCalculator calc = new PizzaCalculator(vectorwing.farmersdelight.common.registry.ModItems.WHEAT_DOUGH.get().getDefaultInstance(), ItemStack.EMPTY, handler);
-        return calc.getResultSliceStack(ModItems.PIZZA_SLICE.get().getDefaultInstance());
-    }
-
-    public static ItemStack createCapricciosaSlice() {
-        ItemStackHandler handler = new ItemStackHandler(10);
-        handler.setStackInSlot(0, ModItems.CHEESE.get().getDefaultInstance());
-        handler.setStackInSlot(1, vectorwing.farmersdelight.common.registry.ModItems.TOMATO_SAUCE.get().getDefaultInstance());
-        handler.setStackInSlot(2, ModItems.MUSHROOM_SLICE.get().getDefaultInstance());
-        handler.setStackInSlot(3, vectorwing.farmersdelight.common.registry.ModItems.HAM.get().getDefaultInstance());
-        PizzaCalculator calc = new PizzaCalculator(vectorwing.farmersdelight.common.registry.ModItems.WHEAT_DOUGH.get().getDefaultInstance(), ItemStack.EMPTY, handler);
-        ItemStack stack = calc.getResultSliceStack(ModItems.PIZZA_SLICE.get().getDefaultInstance());
-        stack.setHoverName(Component.literal("Capricciosa Slice"));
-        return stack;
-    }
-
-    public static ItemStack createMeatFeastSlice() {
-        ItemStackHandler handler = new ItemStackHandler(10);
-        handler.setStackInSlot(0, ModItems.CHEESE.get().getDefaultInstance());
-        handler.setStackInSlot(1, vectorwing.farmersdelight.common.registry.ModItems.TOMATO_SAUCE.get().getDefaultInstance());
-        handler.setStackInSlot(2, vectorwing.farmersdelight.common.registry.ModItems.HAM.get().getDefaultInstance());
-        handler.setStackInSlot(3, vectorwing.farmersdelight.common.registry.ModItems.BACON.get().getDefaultInstance());
-        handler.setStackInSlot(4, vectorwing.farmersdelight.common.registry.ModItems.MINCED_BEEF.get().getDefaultInstance());
-        PizzaCalculator calc = new PizzaCalculator(vectorwing.farmersdelight.common.registry.ModItems.WHEAT_DOUGH.get().getDefaultInstance(), ItemStack.EMPTY, handler);
-        ItemStack stack = calc.getResultSliceStack(ModItems.PIZZA_SLICE.get().getDefaultInstance());
-        stack.setHoverName(Component.literal("Meat Feast Slice"));
-        return stack;
-    }
-
-    public static ItemStack createMargherita() {
-        ItemStackHandler handler = new ItemStackHandler(10);
-        handler.setStackInSlot(0, ModItems.CHEESE.get().getDefaultInstance());
-        handler.setStackInSlot(1, vectorwing.farmersdelight.common.registry.ModItems.TOMATO_SAUCE.get().getDefaultInstance());
-        PizzaCalculator calc = new PizzaCalculator(vectorwing.farmersdelight.common.registry.ModItems.WHEAT_DOUGH.get().getDefaultInstance(), ItemStack.EMPTY, handler);
-        ItemStack stack = calc.getResultStackBlock(ModItems.PIZZA.get().getDefaultInstance());
-        //stack.set(DataComponents.CUSTOM_NAME, Component.literal("Margherita"));
-        return stack;
-    }
-
-    public static ItemStack createCapricciosa() {
-        ItemStackHandler handler = new ItemStackHandler(10);
-        handler.setStackInSlot(0, ModItems.CHEESE.get().getDefaultInstance());
-        handler.setStackInSlot(1, vectorwing.farmersdelight.common.registry.ModItems.TOMATO_SAUCE.get().getDefaultInstance());
-        handler.setStackInSlot(2, ModItems.MUSHROOM_SLICE.get().getDefaultInstance());
-        handler.setStackInSlot(3, vectorwing.farmersdelight.common.registry.ModItems.HAM.get().getDefaultInstance());
-        PizzaCalculator calc = new PizzaCalculator(vectorwing.farmersdelight.common.registry.ModItems.WHEAT_DOUGH.get().getDefaultInstance(), ItemStack.EMPTY, handler);
-        ItemStack stack = calc.getResultStackBlock(ModItems.PIZZA.get().getDefaultInstance());
-        //stack.set(DataComponents.CUSTOM_NAME, Component.literal("Capricciosa"));
-        return stack;
-    }
-
-    public static ItemStack createMeatFeast() {
-        ItemStackHandler handler = new ItemStackHandler(10);
-        handler.setStackInSlot(0, ModItems.CHEESE.get().getDefaultInstance());
-        handler.setStackInSlot(1, vectorwing.farmersdelight.common.registry.ModItems.TOMATO_SAUCE.get().getDefaultInstance());
-        handler.setStackInSlot(2, vectorwing.farmersdelight.common.registry.ModItems.HAM.get().getDefaultInstance());
-        handler.setStackInSlot(3, vectorwing.farmersdelight.common.registry.ModItems.BACON.get().getDefaultInstance());
-        handler.setStackInSlot(4, vectorwing.farmersdelight.common.registry.ModItems.MINCED_BEEF.get().getDefaultInstance());
-        PizzaCalculator calc = new PizzaCalculator(vectorwing.farmersdelight.common.registry.ModItems.WHEAT_DOUGH.get().getDefaultInstance(), ItemStack.EMPTY, handler);
-        ItemStack stack = calc.getResultStackBlock(ModItems.PIZZA.get().getDefaultInstance());
-        //stack.set(DataComponents.CUSTOM_NAME, Component.literal("Meat Feast"));
         return stack;
     }
 
@@ -129,13 +52,82 @@ public class ModCreativeTabs {
         output.accept(ModBlocks.CHEESE_BLOCK.get());
         output.accept(ModItems.CHEESE.get());
 
-        //output.accept(ModBlocks.WILD_PEPPERS.get());
-        //output.accept(ModItems.PEPPER.get());
-        //output.accept(ModItems.PEPPER_SEEDS.get());
-
         output.accept(ModItems.TOMATO_SLICE.get());
         output.accept(ModItems.ONION_SLICE.get());
-        //output.accept(ModItems.PEPPER_SLICE.get());
         output.accept(ModItems.MUSHROOM_SLICE.get());
+    }
+
+    public static ItemStack createPizza() {
+        ItemStackHandler handler = new ItemStackHandler(10);
+        handler.setStackInSlot(0, ModItems.CHEESE.get().getDefaultInstance());
+        PizzaCalculator calc = new PizzaCalculator(vectorwing.farmersdelight.common.registry.ModItems.WHEAT_DOUGH.get().getDefaultInstance(), ItemStack.EMPTY, handler);
+        return calc.getResultStackBlock(ModItems.PIZZA.get().getDefaultInstance());
+    }
+
+    public static ItemStack createSlice() {
+        ItemStackHandler handler = new ItemStackHandler(10);
+        handler.setStackInSlot(0, ModItems.CHEESE.get().getDefaultInstance());
+        PizzaCalculator calc = new PizzaCalculator(vectorwing.farmersdelight.common.registry.ModItems.WHEAT_DOUGH.get().getDefaultInstance(), ItemStack.EMPTY, handler);
+        return calc.getResultSlice(ModItems.PIZZA_SLICE.get().getDefaultInstance());
+    }
+
+    public static ItemStack createCapricciosaSlice() {
+        ItemStackHandler handler = new ItemStackHandler(10);
+        handler.setStackInSlot(0, ModItems.CHEESE.get().getDefaultInstance());
+        handler.setStackInSlot(1, vectorwing.farmersdelight.common.registry.ModItems.TOMATO_SAUCE.get().getDefaultInstance());
+        handler.setStackInSlot(2, ModItems.MUSHROOM_SLICE.get().getDefaultInstance());
+        handler.setStackInSlot(3, vectorwing.farmersdelight.common.registry.ModItems.HAM.get().getDefaultInstance());
+        PizzaCalculator calc = new PizzaCalculator(vectorwing.farmersdelight.common.registry.ModItems.WHEAT_DOUGH.get().getDefaultInstance(), ItemStack.EMPTY, handler);
+        ItemStack stack = calc.getResultSlice(ModItems.PIZZA_SLICE.get().getDefaultInstance());
+        stack.setHoverName(Component.literal("Capricciosa Slice"));
+        return stack;
+    }
+
+    public static ItemStack createMeatFeastSlice() {
+        ItemStackHandler handler = new ItemStackHandler(10);
+        handler.setStackInSlot(0, ModItems.CHEESE.get().getDefaultInstance());
+        handler.setStackInSlot(1, vectorwing.farmersdelight.common.registry.ModItems.TOMATO_SAUCE.get().getDefaultInstance());
+        handler.setStackInSlot(2, vectorwing.farmersdelight.common.registry.ModItems.HAM.get().getDefaultInstance());
+        handler.setStackInSlot(3, vectorwing.farmersdelight.common.registry.ModItems.BACON.get().getDefaultInstance());
+        handler.setStackInSlot(4, vectorwing.farmersdelight.common.registry.ModItems.MINCED_BEEF.get().getDefaultInstance());
+        PizzaCalculator calc = new PizzaCalculator(vectorwing.farmersdelight.common.registry.ModItems.WHEAT_DOUGH.get().getDefaultInstance(), ItemStack.EMPTY, handler);
+        ItemStack stack = calc.getResultSlice(ModItems.PIZZA_SLICE.get().getDefaultInstance());
+        stack.setHoverName(Component.literal("Meat Feast Slice"));
+        return stack;
+    }
+
+    public static ItemStack createMargherita() {
+        ItemStackHandler handler = new ItemStackHandler(10);
+        handler.setStackInSlot(0, ModItems.CHEESE.get().getDefaultInstance());
+        handler.setStackInSlot(1, vectorwing.farmersdelight.common.registry.ModItems.TOMATO_SAUCE.get().getDefaultInstance());
+        PizzaCalculator calc = new PizzaCalculator(vectorwing.farmersdelight.common.registry.ModItems.WHEAT_DOUGH.get().getDefaultInstance(), ItemStack.EMPTY, handler);
+        ItemStack stack = calc.getResultStackBlock(ModItems.PIZZA.get().getDefaultInstance());
+        stack.setHoverName(Component.literal("Margherita"));
+        return stack;
+    }
+
+    public static ItemStack createCapricciosa() {
+        ItemStackHandler handler = new ItemStackHandler(10);
+        handler.setStackInSlot(0, ModItems.CHEESE.get().getDefaultInstance());
+        handler.setStackInSlot(1, vectorwing.farmersdelight.common.registry.ModItems.TOMATO_SAUCE.get().getDefaultInstance());
+        handler.setStackInSlot(2, ModItems.MUSHROOM_SLICE.get().getDefaultInstance());
+        handler.setStackInSlot(3, vectorwing.farmersdelight.common.registry.ModItems.HAM.get().getDefaultInstance());
+        PizzaCalculator calc = new PizzaCalculator(vectorwing.farmersdelight.common.registry.ModItems.WHEAT_DOUGH.get().getDefaultInstance(), ItemStack.EMPTY, handler);
+        ItemStack stack = calc.getResultStackBlock(ModItems.PIZZA.get().getDefaultInstance());
+        stack.setHoverName(Component.literal("Capricciosa"));
+        return stack;
+    }
+
+    public static ItemStack createMeatFeast() {
+        ItemStackHandler handler = new ItemStackHandler(10);
+        handler.setStackInSlot(0, ModItems.CHEESE.get().getDefaultInstance());
+        handler.setStackInSlot(1, vectorwing.farmersdelight.common.registry.ModItems.TOMATO_SAUCE.get().getDefaultInstance());
+        handler.setStackInSlot(2, vectorwing.farmersdelight.common.registry.ModItems.HAM.get().getDefaultInstance());
+        handler.setStackInSlot(3, vectorwing.farmersdelight.common.registry.ModItems.BACON.get().getDefaultInstance());
+        handler.setStackInSlot(4, vectorwing.farmersdelight.common.registry.ModItems.MINCED_BEEF.get().getDefaultInstance());
+        PizzaCalculator calc = new PizzaCalculator(vectorwing.farmersdelight.common.registry.ModItems.WHEAT_DOUGH.get().getDefaultInstance(), ItemStack.EMPTY, handler);
+        ItemStack stack = calc.getResultStackBlock(ModItems.PIZZA.get().getDefaultInstance());
+        stack.setHoverName(Component.literal("Meat Feast"));
+        return stack;
     }
 }

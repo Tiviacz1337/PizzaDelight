@@ -39,7 +39,7 @@ public class BasinBlockEntity extends BaseBlockEntity {
     @Override
     public void load(CompoundTag compound) {
         super.load(compound);
-        this.content = BasinContentRegistry.fromString(compound.getString(BASIN_CONTENT));
+        this.content = BasinContentRegistry.REGISTRY.fromString(compound.getString(BASIN_CONTENT));
         this.fermentProgress = compound.getInt(FERMENT_PROGRESS);
     }
 

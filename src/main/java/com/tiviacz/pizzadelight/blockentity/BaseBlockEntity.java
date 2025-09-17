@@ -37,8 +37,8 @@ public class BaseBlockEntity extends BlockEntity {
 
     private void notifyBlockUpdate() {
         BlockState blockstate = getLevel().getBlockState(getBlockPos());
-        level.setBlocksDirty(getBlockPos(), blockstate, blockstate);
-        level.sendBlockUpdated(getBlockPos(), blockstate, blockstate, Block.UPDATE_CLIENTS);
+        getLevel().setBlocksDirty(getBlockPos(), blockstate, blockstate);
+        getLevel().sendBlockUpdated(getBlockPos(), blockstate, blockstate, Block.UPDATE_CLIENTS);
     }
 
     @Override

@@ -128,6 +128,7 @@ public class PizzaMenu extends AbstractContainerMenu {
         return itemstack;
     }
 
+    @Override
     public void removed(Player player) {
         super.removed(player);
         this.clearContainer(player, new RecipeWrapper(transistentHandler));
@@ -180,12 +181,12 @@ public class PizzaMenu extends AbstractContainerMenu {
         ItemStack container = sauceStack.getCraftingRemainingItem();
 
         boolean isPotion = sauceStack.getItem() instanceof PotionItem;
-        boolean isSoup = sauceStack.getItem() instanceof BowlFoodItem;
+        boolean isSauce = sauceStack.getItem() instanceof BowlFoodItem;
 
         if(container.isEmpty()) {
             if(isPotion) {
                 container = new ItemStack(Items.GLASS_BOTTLE);
-            } else if(isSoup) {
+            } else if(isSauce) {
                 container = new ItemStack(Items.BOWL);
             }
         }

@@ -37,7 +37,6 @@ public class ModClientEventHandler {
     @SubscribeEvent
     public static void layerDefinitions(EntityRenderersEvent.RegisterLayerDefinitions event) {
         event.registerLayerDefinition(BasinRenderer.ContentModel.CONTENT_LAYER, BasinRenderer.ContentModel::createModelData);
-        event.registerLayerDefinition(BasinRenderer.SauceModel.SAUCE_LAYER, BasinRenderer.SauceModel::createModelData);
         event.registerLayerDefinition(ChefHatModel.CHEF_HAT, ChefHatModel::createModelData);
     }
 

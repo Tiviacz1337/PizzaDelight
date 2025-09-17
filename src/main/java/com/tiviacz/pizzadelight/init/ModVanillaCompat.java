@@ -7,9 +7,7 @@ public class ModVanillaCompat {
     public static void setup() {
         registerCompostable(0.3F, ModItems.TOMATO_SLICE.get());
         registerCompostable(0.3F, ModItems.ONION_SLICE.get());
-        //registerCompostable(0.3F, ModItems.PEPPER_SLICE.get());
         registerCompostable(0.3F, ModItems.MUSHROOM_SLICE.get());
-        //registerCompostable(0.65F, ModItems.PEPPER.get());
     }
 
     public static void registerCompostable(float chance, ItemLike itemIn) {

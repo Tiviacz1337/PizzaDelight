@@ -18,7 +18,6 @@ public class ModItems {
     public static final RegistryObject<Item> RAW_PIZZA = ITEMS.register("raw_pizza", () -> new RawPizzaBlockItem(ModBlocks.RAW_PIZZA.get(), pizzaProperties().stacksTo(1)));
     public static final RegistryObject<Item> PIZZA_STATION = registerBlockItem("pizza_station", ModBlocks.PIZZA_STATION, pizzaProperties());
     public static final RegistryObject<Item> BASIN = registerBlockItem("basin", ModBlocks.BASIN, pizzaProperties());
-    //public static final RegistryObject<Item> WILD_PEPPERS = ITEMS.register("wild_peppers", () -> new BlockItem(ModBlocks.WILD_PEPPERS.get(), vectorwing.farmersdelight.common.registry.ModItems.basicItem()));
 
     //Outfits
     public static final RegistryObject<Item> CHEF_HAT = ITEMS.register("chef_hat", () -> new ChefArmor(ArmorMaterials.CHEF, ArmorItem.Type.HELMET, pizzaProperties()));
@@ -38,12 +37,8 @@ public class ModItems {
     public static final RegistryObject<Item> PIZZA_SLICE = ITEMS.register("pizza_slice", () -> new PizzaSliceItem(pizzaProperties()));
 
     public static final RegistryObject<Item> ONION_SLICE = ITEMS.register("onion_slice", () -> new Item(pizzaProperties().food(ModFoods.ONION_SLICE)));
-    //public static final RegistryObject<Item> PEPPER_SLICE = ITEMS.register("pepper_slice", () -> new Item(pizzaProperties().food(ModFoods.PEPPER_SLICE)));
     public static final RegistryObject<Item> TOMATO_SLICE = ITEMS.register("tomato_slice", () -> new Item(pizzaProperties().food(ModFoods.TOMATO_SLICE)));
     public static final RegistryObject<Item> MUSHROOM_SLICE = ITEMS.register("mushroom_slice", () -> new Item(pizzaProperties().food(ModFoods.MUSHROOM_SLICE)));
-
-    //public static final RegistryObject<Item> PEPPER = ITEMS.register("pepper", () -> new Item(pizzaProperties().food(ModFoods.PEPPER)));
-    //public static final RegistryObject<Item> PEPPER_SEEDS = ITEMS.register("pepper_seeds", () -> new ItemNameBlockItem(ModBlocks.PEPPER_CROP.get(), vectorwing.farmersdelight.common.registry.ModItems.basicItem()));
 
     //Cheese
     public static final RegistryObject<Item> CHEESE_BLOCK = registerBlockItem("cheese_block", ModBlocks.CHEESE_BLOCK, pizzaProperties());

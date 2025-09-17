@@ -28,10 +28,10 @@ import java.util.Optional;
 
 @OnlyIn(Dist.CLIENT)
 public class ScreenPizzaStation extends AbstractContainerScreen<PizzaStationMenu> implements MenuAccess<PizzaStationMenu>, ContainerListener {
-    public static final ResourceLocation SCREEN_PIZZA_STATION = new ResourceLocation(PizzaDelight.MODID, "textures/gui/pizza_station.png");
-    private static final ResourceLocation EMPTY_SLOT_SAUCE = new ResourceLocation(PizzaDelight.MODID, "item/empty_slot_sauce");
-    private static final ResourceLocation EMPTY_SLOT_POTION = new ResourceLocation(PizzaDelight.MODID, "item/empty_slot_potion");
-    private static final ResourceLocation EMPTY_SLOT_RAW_PIZZA = new ResourceLocation(PizzaDelight.MODID, "item/empty_slot_raw_pizza");
+    public static final ResourceLocation SCREEN_PIZZA_STATION = ResourceLocation.fromNamespaceAndPath(PizzaDelight.MODID, "textures/gui/pizza_station.png");
+    private static final ResourceLocation EMPTY_SLOT_SAUCE = ResourceLocation.fromNamespaceAndPath(PizzaDelight.MODID, "item/empty_slot_sauce");
+    private static final ResourceLocation EMPTY_SLOT_POTION = ResourceLocation.fromNamespaceAndPath(PizzaDelight.MODID, "item/empty_slot_potion");
+    private static final ResourceLocation EMPTY_SLOT_RAW_PIZZA = ResourceLocation.fromNamespaceAndPath(PizzaDelight.MODID, "item/empty_slot_raw_pizza");
     public static final List<ResourceLocation> SAUCES = List.of(EMPTY_SLOT_SAUCE, EMPTY_SLOT_POTION);
     private static final List<ResourceLocation> DOUGH = List.of(EMPTY_SLOT_RAW_PIZZA);
     private final PizzaStationBlockEntity blockEntity;
