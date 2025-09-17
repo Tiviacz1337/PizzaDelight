@@ -1,22 +1,21 @@
 package com.tiviacz.pizzadelight.blocks;
 
-import com.mojang.datafixers.util.Pair;
 import com.tiviacz.pizzadelight.blockentity.PizzaBlockEntity;
 import com.tiviacz.pizzadelight.init.ModItems;
 import com.tiviacz.pizzadelight.items.PizzaPeelItem;
-import com.tiviacz.pizzadelight.util.TextUtils;
 import com.tiviacz.pizzadelight.util.Utils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodProperties;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.BlockGetter;
@@ -31,18 +30,19 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import vectorwing.farmersdelight.common.tag.ModTags;
 import vectorwing.farmersdelight.common.utility.ItemUtils;
+import vectorwing.farmersdelight.common.utility.TextUtils;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import java.util.Iterator;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class PizzaBlock extends Block implements EntityBlock {
     public static final IntegerProperty SLICES = IntegerProperty.create("slices", 0, 3);
@@ -86,33 +86,13 @@ public class PizzaBlock extends Block implements EntityBlock {
         return super.getDestroyProgress(pState, pPlayer, pLevel, pPos);
     }
 
-  /*  @Override
-    @OnlyIn(Dist.CLIENT)
-    public void animateTick(BlockState stateIn, Level level, BlockPos pos, RandomSource rand) //#TODO add particle for cooked pizza
-    {
-        if(rand.nextInt(3) == 0 && level.getBlockEntity(pos) instanceof PizzaBlockEntity blockEntity)
-        {
-            //if(blockEntity.isFresh())
-            {
-                double[] particlePos = RenderUtils.getPosRandomAboveBlockHorizontal(level, pos);
-                //worldIn.playSound(null, pos.getX(), pos.getY(), pos.getZ(), ModSounds.SIZZLING_SOUND.get(), SoundCategory.BLOCKS, 1.0F, 1.0F);
-                for(int i = 0; i < 2; i++)
-                {
-                    //worldIn.addParticle(ParticleTypes.POOF, pos.getX() + 0.5D, pos.getY() + 0.4D, pos.getZ() + 0.5D, 0D, 0.025D, 0D);
-                    level.addParticle(ParticleTypes.POOF, particlePos[0], pos.getY() + 0.4D, particlePos[1], 0D, 0.025D, 0D);
-                }
-                level.addParticle(ParticleTypes.HAPPY_VILLAGER, particlePos[0], pos.getY() + 0.3D, particlePos[1], 0D, 3.0D + rand.nextDouble(), 0.0D);
-            }
-        }
-    } */
+    @Override
+    public ItemInteractionResult useItemOn(ItemStack heldStack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+        return heldStack.is(ModTags.KNIVES) ? this.cutSlice(level, pos, state, player) : (heldStack.getItem() instanceof PizzaPeelItem && state.getValue(SLICES) == 0) ? this.pickUpPizza(level, pos, state, player) : ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+    }
 
     @Override
-    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand handIn, BlockHitResult hit) {
-        ItemStack heldStack = player.getItemInHand(handIn);
-        if(!heldStack.isEmpty()) {
-            return heldStack.is(ModTags.KNIVES) ? this.cutSlice(level, pos, state, player) : (heldStack.getItem() instanceof PizzaPeelItem && state.getValue(SLICES) == 0) ? this.pickUpPizza(level, pos, state, player) : InteractionResult.PASS;
-        }
-
+    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
         if(level.isClientSide) {
             if(this.consumeSlice(level, pos, state, player).consumesAction()) {
                 return InteractionResult.SUCCESS;
@@ -133,11 +113,13 @@ public class PizzaBlock extends Block implements EntityBlock {
             ItemStack sliceStack = this.getPizzaSliceItem(level, pos);
             FoodProperties sliceFood = sliceStack.getItem().getFoodProperties(sliceStack, playerIn);
             if(sliceFood != null) {
-                playerIn.getFoodData().eat(sliceStack.getItem(), sliceStack, playerIn);
+                playerIn.getFoodData().eat(sliceFood);
+                Iterator var7 = sliceFood.effects().iterator();
 
-                for(Pair<MobEffectInstance, Float> effect : sliceFood.getEffects()) {
-                    if(!level.isClientSide && effect != null && level.random.nextFloat() < effect.getSecond()) {
-                        playerIn.addEffect(effect.getFirst());
+                while(var7.hasNext()) {
+                    FoodProperties.PossibleEffect effect = (FoodProperties.PossibleEffect)var7.next();
+                    if(!level.isClientSide && effect != null && level.random.nextFloat() < effect.probability()) {
+                        playerIn.addEffect(effect.effect());
                     }
                 }
             }
@@ -156,7 +138,7 @@ public class PizzaBlock extends Block implements EntityBlock {
         }
     }
 
-    protected InteractionResult cutSlice(Level level, BlockPos pos, BlockState state, Player player) {
+    protected ItemInteractionResult cutSlice(Level level, BlockPos pos, BlockState state, Player player) {
         int slices = state.getValue(SLICES);
         ItemStack pizzaSlice = this.getPizzaSliceItem(level, pos);
 
@@ -171,10 +153,10 @@ public class PizzaBlock extends Block implements EntityBlock {
         Direction direction = player.getDirection().getOpposite();
         ItemUtils.spawnItemEntity(level, pizzaSlice, (double)pos.getX() + 0.5, (double)pos.getY() + 0.3, (double)pos.getZ() + 0.5, (double)direction.getStepX() * 0.15, 0.05, (double)direction.getStepZ() * 0.15);
         level.playSound(null, pos, SoundEvents.WOOL_BREAK, SoundSource.PLAYERS, 0.8F, 0.8F);
-        return InteractionResult.SUCCESS;
+        return ItemInteractionResult.SUCCESS;
     }
 
-    protected InteractionResult pickUpPizza(Level level, BlockPos pos, BlockState state, Player player) {
+    protected ItemInteractionResult pickUpPizza(Level level, BlockPos pos, BlockState state, Player player) {
         PizzaBlockEntity blockEntity = (PizzaBlockEntity)level.getBlockEntity(pos);
         ItemStack pizza = asItem().getDefaultInstance();
         pizza = blockEntity.cloneToItemStack(pizza);
@@ -182,22 +164,13 @@ public class PizzaBlock extends Block implements EntityBlock {
         Direction direction = player.getDirection().getOpposite();
         ItemUtils.spawnItemEntity(level, pizza, (double)pos.getX() + 0.5, (double)pos.getY() + 0.3, (double)pos.getZ() + 0.5, (double)direction.getStepX() * 0.15, 0.05, (double)direction.getStepZ() * 0.15);
         level.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
-        return InteractionResult.SUCCESS;
+        return ItemInteractionResult.SUCCESS;
     }
 
     @Override
-    public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
+    public ItemStack getCloneItemStack(BlockState state, HitResult target, LevelReader level, BlockPos pos, Player player) {
+        ItemStack stack = super.getCloneItemStack(state, target, level, pos, player);
         if(level.getBlockEntity(pos) instanceof PizzaBlockEntity blockEntity) {
-            if(stack.getTag() != null) {
-                blockEntity.load(stack.getOrCreateTag());
-            }
-        }
-    }
-
-    @Override
-    public ItemStack getCloneItemStack(BlockState state, HitResult target, BlockGetter world, BlockPos pos, Player player) {
-        ItemStack stack = super.getCloneItemStack(state, target, world, pos, player);
-        if(world.getBlockEntity(pos) instanceof PizzaBlockEntity blockEntity) {
             blockEntity.cloneToItemStack(stack);
         }
         return stack;
@@ -205,7 +178,7 @@ public class PizzaBlock extends Block implements EntityBlock {
 
     @Override
     public BlockState updateShape(BlockState stateIn, Direction facing, BlockState facingState, LevelAccessor level, BlockPos currentPos, BlockPos facingPos) {
-        return facing == Direction.DOWN && !stateIn.isViewBlocking(level, currentPos) ? Blocks.AIR.defaultBlockState() : super.updateShape(stateIn, facing, facingState, level, currentPos, facingPos);
+        return facing == Direction.DOWN && !stateIn.canSurvive(level, currentPos) ? Blocks.AIR.defaultBlockState() : super.updateShape(stateIn, facing, facingState, level, currentPos, facingPos);
     }
 
     @Override
@@ -219,13 +192,18 @@ public class PizzaBlock extends Block implements EntityBlock {
     }
 
     @Override
-    public int getSignal(BlockState blockState, BlockGetter level, BlockPos pos, Direction side) {
+    public int getAnalogOutputSignal(BlockState blockState, Level level, BlockPos pos) {
         return this.getMaxSlices() - blockState.getValue(SLICES);
     }
 
     @Override
-    public boolean isSignalSource(BlockState state) {
+    public boolean hasAnalogOutputSignal(BlockState state) {
         return true;
+    }
+
+    @Override
+    public boolean isPathfindable(BlockState state, PathComputationType type) {
+        return false;
     }
 
     @Override
@@ -234,20 +212,20 @@ public class PizzaBlock extends Block implements EntityBlock {
     }
 
     @Override
-    @OnlyIn(Dist.CLIENT)
-    public void appendHoverText(ItemStack stack, @Nullable BlockGetter level, List<Component> tooltip, TooltipFlag flagIn) {
-        FoodProperties foodProperties = stack.getItem().getFoodProperties(stack, null);
+    public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
+        super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
+        FoodProperties foodProperties = stack.get(DataComponents.FOOD);
 
-        addInformationForPizza(stack, tooltip, foodProperties != null && !foodProperties.getEffects().isEmpty());
+        addInformationForPizza(stack, tooltipComponents::add, foodProperties != null && !foodProperties.effects().isEmpty(), context.tickRate());
     }
 
-    public static void addInformationForPizza(ItemStack stack, List<Component> tooltip, boolean addEffects) {
+    public static void addInformationForPizza(ItemStack stack, Consumer<Component> tooltip, boolean addEffects, float tickRate) {
         if(addEffects) {
-            TextUtils.addFoodEffectTooltip(stack, tooltip, 1.0F);
+            TextUtils.addFoodEffectTooltip(stack, tooltip, 1.0F, tickRate);
         }
 
         if(!Utils.isShiftPressed()) {
-            tooltip.add(Component.translatable("information.pizzadelight.view_ingredients"));
+            tooltip.accept(Component.translatable("information.pizzadelight.view_ingredients"));
         }
     }
 }

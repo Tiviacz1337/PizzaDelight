@@ -1,0 +1,41 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "condition": "minecraft:survives_explosion"
+        },
+        {
+          "condition": "minecraft:block_state_property",
+          "block": "pizzadelight:pizza",
+          "properties": {
+            "slices": "0"
+          }
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "function": "minecraft:copy_name",
+              "source": "block_entity"
+            },
+            {
+              "function": "minecraft:copy_components",
+              "include": [
+                "pizzadelight:pizza_ingredients"
+              ],
+              "source": "block_entity"
+            }
+          ],
+          "name": "pizzadelight:pizza"
+        }
+      ],
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "pizzadelight:blocks/pizza"
+}

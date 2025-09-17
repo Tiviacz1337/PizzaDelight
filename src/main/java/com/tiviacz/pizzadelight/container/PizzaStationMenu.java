@@ -7,7 +7,7 @@ import com.tiviacz.pizzadelight.init.ModItems;
 import com.tiviacz.pizzadelight.init.ModMenuTypes;
 import com.tiviacz.pizzadelight.tags.ModTags;
 import com.tiviacz.pizzadelight.util.Utils;
-import net.minecraft.SharedConstants;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.StringUtil;
@@ -18,9 +18,8 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.PotionItem;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.items.ItemStackHandler;
-import net.minecraftforge.items.SlotItemHandler;
-import org.apache.commons.lang3.StringUtils;
+import net.neoforged.neoforge.items.ItemStackHandler;
+import net.neoforged.neoforge.items.SlotItemHandler;
 
 import javax.annotation.Nullable;
 import java.util.Objects;
@@ -127,7 +126,7 @@ public class PizzaStationMenu extends AbstractContainerMenu {
         }
 
         for(int i = 0; i < ingredientsHandler.getSlots(); i++) {
-            if(!ingredientsHandler.getStackInSlot(i).isEmpty() && !ingredientsHandler.getStackInSlot(i).isEdible()) {
+            if(!ingredientsHandler.getStackInSlot(i).isEmpty() && !ingredientsHandler.getStackInSlot(i).has(DataComponents.FOOD)) {
                 resetOutput();
                 return;
             }
@@ -148,10 +147,12 @@ public class PizzaStationMenu extends AbstractContainerMenu {
             return;
         }
 
-        if(StringUtils.isBlank(this.itemName)) {
-            result.resetHoverName();
-        } else if(!this.itemName.equals(result.getHoverName().getString())) {
-            result.setHoverName(Component.literal(this.itemName));
+        if(this.itemName != null && !StringUtil.isBlank(this.itemName)) {
+            if(!this.itemName.equals(result.getHoverName().getString())) {
+                result.set(DataComponents.CUSTOM_NAME, Component.literal(this.itemName));
+            }
+        } else if(result.has(DataComponents.CUSTOM_NAME)) {
+            result.remove(DataComponents.CUSTOM_NAME);
         }
 
         setOutput(result.copy());
@@ -163,10 +164,10 @@ public class PizzaStationMenu extends AbstractContainerMenu {
             this.itemName = s;
             if(this.getSlot(1).hasItem()) {
                 ItemStack itemstack = this.getSlot(1).getItem();
-                if(StringUtil.isNullOrEmpty(s)) {
-                    itemstack.resetHoverName();
+                if(StringUtil.isBlank(s)) {
+                    itemstack.remove(DataComponents.CUSTOM_NAME);
                 } else {
-                    itemstack.setHoverName(Component.literal(s));
+                    itemstack.set(DataComponents.CUSTOM_NAME, Component.literal(s));
                 }
             }
 
@@ -178,8 +179,8 @@ public class PizzaStationMenu extends AbstractContainerMenu {
     }
 
     @Nullable
-    private static String validateName(String pItemName) {
-        String s = SharedConstants.filterText(pItemName);
+    private static String validateName(String itemName) {
+        String s = StringUtil.filterText(itemName);
         return s.length() <= 50 ? s : null;
     }
 

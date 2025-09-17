@@ -3,19 +3,21 @@ package com.tiviacz.pizzadelight.container;
 import com.tiviacz.pizzadelight.blockentity.PizzaBlockEntity;
 import com.tiviacz.pizzadelight.init.ModMenuTypes;
 import com.tiviacz.pizzadelight.tags.ModTags;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.BowlFoodItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.PotionItem;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.items.ItemStackHandler;
-import net.minecraftforge.items.SlotItemHandler;
-import net.minecraftforge.items.wrapper.RecipeWrapper;
+import net.neoforged.neoforge.items.ItemStackHandler;
+import net.neoforged.neoforge.items.SlotItemHandler;
+import net.neoforged.neoforge.items.wrapper.RecipeWrapper;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
@@ -128,9 +130,29 @@ public class PizzaMenu extends AbstractContainerMenu {
         return itemstack;
     }
 
+    @Override
     public void removed(Player player) {
         super.removed(player);
-        this.clearContainer(player, new RecipeWrapper(transistentHandler));
+        this.clearContainer(player, transistentHandler);
+    }
+
+    //From vanilla clearContainer(Player, Container)
+    protected void clearContainer(Player player, ItemStackHandler handler) {
+        if (!player.isAlive() || player instanceof ServerPlayer && ((ServerPlayer)player).hasDisconnected()) {
+            for(int j = 0; j < handler.getSlots(); ++j) {
+                ItemStack stack = handler.getStackInSlot(j).copy();
+                player.drop(stack, false);
+            }
+        } else {
+            for(int i = 0; i < handler.getSlots(); ++i) {
+                Inventory inventory = player.getInventory();
+                if (inventory.player instanceof ServerPlayer) {
+                    ItemStack stack = handler.getStackInSlot(i).copy();
+                    inventory.placeItemBackInInventory(stack);
+                }
+            }
+        }
+
     }
 
     @Override
@@ -180,13 +202,13 @@ public class PizzaMenu extends AbstractContainerMenu {
         ItemStack container = sauceStack.getCraftingRemainingItem();
 
         boolean isPotion = sauceStack.getItem() instanceof PotionItem;
-        boolean isSoup = sauceStack.getItem() instanceof BowlFoodItem;
+        boolean isSauce = sauceStack.has(DataComponents.FOOD) && !sauceStack.get(DataComponents.FOOD).usingConvertsTo().isEmpty();
 
         if(container.isEmpty()) {
             if(isPotion) {
                 container = new ItemStack(Items.GLASS_BOTTLE);
-            } else if(isSoup) {
-                container = new ItemStack(Items.BOWL);
+            } else if(isSauce) {
+                container = sauceStack.get(DataComponents.FOOD).usingConvertsTo().get();
             }
         }
         return container;

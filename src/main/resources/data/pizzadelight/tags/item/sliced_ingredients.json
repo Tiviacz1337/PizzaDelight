@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    "pizzadelight:onion_slice",
+    "pizzadelight:tomato_slice",
+    "pizzadelight:mushroom_slice",
+    "pizzadelight:cheese",
+    {
+      "id": "culturaldelights:cut_cucumber",
+      "required": false
+    }
+  ]
+}

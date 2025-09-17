@@ -1,7 +1,7 @@
 package com.tiviacz.pizzadelight.client;
 
 import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraftforge.client.model.IQuadTransformer;
+import net.neoforged.neoforge.client.model.IQuadTransformer;
 
 import javax.annotation.Nonnull;
 import java.util.List;

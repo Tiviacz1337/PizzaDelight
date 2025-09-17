@@ -9,12 +9,14 @@ import com.tiviacz.pizzadelight.init.ModSounds;
 import com.tiviacz.pizzadelight.tags.ModTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -37,15 +39,15 @@ public class BasinBlockEntity extends BaseBlockEntity {
     }
 
     @Override
-    public void load(CompoundTag compound) {
-        super.load(compound);
-        this.content = BasinContentRegistry.fromString(compound.getString(BASIN_CONTENT));
+    public void loadAdditional(CompoundTag compound, HolderLookup.Provider pRegistries) {
+        super.loadAdditional(compound, pRegistries);
+        this.content = BasinContentRegistry.REGISTRY.fromString(compound.getString(BASIN_CONTENT));
         this.fermentProgress = compound.getInt(FERMENT_PROGRESS);
     }
 
     @Override
-    public void saveAdditional(CompoundTag compound) {
-        super.saveAdditional(compound);
+    public void saveAdditional(CompoundTag compound, HolderLookup.Provider pRegistries) {
+        super.saveAdditional(compound, pRegistries);
         compound.putString(BASIN_CONTENT, content.toString());
         compound.putInt(FERMENT_PROGRESS, this.fermentProgress);
     }
@@ -54,17 +56,17 @@ public class BasinBlockEntity extends BaseBlockEntity {
         return this.content;
     }
 
-    public InteractionResult addMilk(Level level, Player player, InteractionHand hand) {
+    public ItemInteractionResult addMilk(Level level, Player player, InteractionHand hand) {
         this.content = BasinContent.MILK;
         if(!player.isCreative()) {
             player.setItemInHand(hand, new ItemStack(Items.BUCKET));
         }
         level.playSound(player, getBlockPos(), SoundEvents.BUCKET_EMPTY, SoundSource.BLOCKS, 0.8F, 1.0F);
         this.setChanged();
-        return InteractionResult.SUCCESS;
+        return ItemInteractionResult.SUCCESS;
     }
 
-    public InteractionResult removeMilk(ItemStack heldStack, Level level, Player player) {
+    public ItemInteractionResult removeMilk(ItemStack heldStack, Level level, Player player) {
         this.content = BasinContent.AIR;
         if(!player.isCreative()) {
             heldStack.shrink(1);
@@ -75,10 +77,10 @@ public class BasinBlockEntity extends BaseBlockEntity {
         resetFermenting();
         level.playSound(player, getBlockPos(), SoundEvents.BUCKET_FILL, SoundSource.BLOCKS, 0.8F, 1.0F);
         this.setChanged();
-        return InteractionResult.SUCCESS;
+        return ItemInteractionResult.SUCCESS;
     }
 
-    public InteractionResult useFermetingItem(ItemStack heldStack, Level level, Player player) {
+    public ItemInteractionResult useFermetingItem(ItemStack heldStack, Level level, Player player) {
         if(getBasinContent() == BasinContent.MILK) {
             if(heldStack.is(ModTags.FERMENTING_ITEMS_TAG)) {
                 level.playSound(player, getBlockPos(), SoundEvents.COMPOSTER_FILL, SoundSource.BLOCKS, 1.0F, 1.0F);
@@ -89,16 +91,16 @@ public class BasinBlockEntity extends BaseBlockEntity {
                 this.content = BasinContent.FERMENTING_MILK;
                 this.setChanged();
 
-                return InteractionResult.SUCCESS;
+                return ItemInteractionResult.SUCCESS;
             }
         }
-        return InteractionResult.PASS;
+        return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
     }
 
     public InteractionResult removeCheese(Level level, Player player) {
         if(getBasinContent() == BasinContent.CHEESE) {
             Direction direction = player.getDirection().getOpposite();
-            ItemUtils.spawnItemEntity(getLevel(), ModBlocks.CHEESE_BLOCK.get().asItem().getDefaultInstance(), (double)getBlockPos().getX() + 0.5, (double)getBlockPos().getY() + 0.3, (double)getBlockPos().getZ() + 0.5, (double)direction.getStepX() * 0.15, 0.05, (double)direction.getStepZ() * 0.15);
+            ItemUtils.spawnItemEntity(getLevel(), ModBlocks.CHEESE_BLOCK.toStack(), (double)getBlockPos().getX() + 0.5, (double)getBlockPos().getY() + 0.3, (double)getBlockPos().getZ() + 0.5, (double)direction.getStepX() * 0.15, 0.05, (double)direction.getStepZ() * 0.15);
             this.content = BasinContent.AIR;
             level.playSound(player, getBlockPos(), SoundEvents.FUNGUS_PLACE, SoundSource.BLOCKS, 0.8F, 0.9F + level.random.nextFloat());
             this.setChanged();

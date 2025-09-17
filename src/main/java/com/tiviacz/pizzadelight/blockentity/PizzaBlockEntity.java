@@ -4,83 +4,173 @@ import com.tiviacz.pizzadelight.blocks.PizzaBlock;
 import com.tiviacz.pizzadelight.blocks.RawPizzaBlock;
 import com.tiviacz.pizzadelight.client.PizzaBakedModel;
 import com.tiviacz.pizzadelight.common.PizzaBlockCalculator;
+import com.tiviacz.pizzadelight.components.PizzaIngredients;
 import com.tiviacz.pizzadelight.container.PizzaMenu;
 import com.tiviacz.pizzadelight.init.ModBlockEntityTypes;
 import com.tiviacz.pizzadelight.init.ModBlocks;
-import com.tiviacz.pizzadelight.init.ModItems;
+import com.tiviacz.pizzadelight.init.ModDataComponents;
 import com.tiviacz.pizzadelight.tags.ModTags;
-import com.tiviacz.pizzadelight.util.NBTUtils;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
+import net.minecraft.core.component.DataComponentMap;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.MenuProvider;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.*;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.PotionItem;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.client.model.data.ModelData;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.IItemHandlerModifiable;
-import net.minecraftforge.items.ItemStackHandler;
-import net.minecraftforge.network.NetworkHooks;
+import net.neoforged.neoforge.client.model.data.ModelData;
+import net.neoforged.neoforge.items.IItemHandlerModifiable;
+import net.neoforged.neoforge.items.ItemStackHandler;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Optional;
 
-public class PizzaBlockEntity extends BaseBlockEntity implements MenuProvider {
+public class PizzaBlockEntity extends BaseBlockEntity implements MenuProvider, Nameable {
     public ItemStackHandler inventory = createHandler(NonNullList.withSize(10, ItemStack.EMPTY));
     private Component customName = null;
     private int bakingTime = 0;
     private final int BASE_BAKING_TIME = 600;
-    private final int selectedSlot = 0;
+    private int selectedSlot = 0;
 
-    private final LazyOptional<ItemStackHandler> inventoryCapability = LazyOptional.of(() -> this.inventory);
-
-    private final String BAKING_TIME = "BakingTime";
-    private final String CUSTOM_NAME = "CustomName";
+    private static final String BAKING_TIME = "BakingTime";
+    private static final String CUSTOM_NAME = "CustomName";
 
     public PizzaBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntityTypes.PIZZA.get(), pos, state);
     }
 
     @Override
-    public void load(CompoundTag compound) {
-        super.load(compound);
-        this.inventory.deserializeNBT(compound.getCompound(INVENTORY));
+    public void loadAdditional(CompoundTag compound, HolderLookup.Provider pRegistries) {
+        super.loadAdditional(compound, pRegistries);
+        this.inventory.deserializeNBT(pRegistries, compound.getCompound(INVENTORY));
         this.bakingTime = compound.getInt(BAKING_TIME);
 
         if(compound.contains(CUSTOM_NAME, 8)) {
-            this.customName = Component.Serializer.fromJson(compound.getString(CUSTOM_NAME));
+            this.customName = Component.Serializer.fromJson(compound.getString(CUSTOM_NAME), pRegistries);
         }
     }
 
     @Override
-    public void saveAdditional(CompoundTag compound) {
-        super.saveAdditional(compound);
-        compound.put(INVENTORY, this.inventory.serializeNBT());
+    public void saveAdditional(CompoundTag compound, HolderLookup.Provider pRegistries) {
+        super.saveAdditional(compound, pRegistries);
+        compound.put(INVENTORY, this.inventory.serializeNBT(pRegistries));
         compound.putInt(BAKING_TIME, this.bakingTime);
 
         if(this.customName != null) {
-            compound.putString(CUSTOM_NAME, Component.Serializer.toJson(this.customName));
+            compound.putString(CUSTOM_NAME, Component.Serializer.toJson(this.customName, pRegistries));
         }
+    }
+
+    public ItemInteractionResult onBlockActivated(Player player, InteractionHand hand) {
+        if(hand == InteractionHand.MAIN_HAND) {
+            ItemStack stack = player.getItemInHand(hand);
+
+            if(isRaw() && !isBaking()) {
+                if(stack.isEmpty()) {
+                    //Open GUI here
+                    if(player.isCrouching()) {
+                        openGUI(player, this, getBlockPos());
+                        return ItemInteractionResult.SUCCESS;
+                    } else {
+                        //Get first not empty stack for Removal
+                        for(int i = inventory.getSlots() - 1; i >= 0; i--) {
+                            ItemStack firstNotEmpty = inventory.getStackInSlot(i);
+
+                            if(!firstNotEmpty.isEmpty()) {
+                                this.selectedSlot = i;
+                                break;
+                            }
+                        }
+
+                        //Remove stack from slot
+                        if(!inventory.getStackInSlot(this.selectedSlot).isEmpty()) {
+                            ItemStack modifiedCopy = inventory.getStackInSlot(this.selectedSlot).copy();
+
+                            if(this.selectedSlot != 9) {
+                                if(!player.getInventory().add(modifiedCopy)) {
+                                    Containers.dropItemStack(level, getBlockPos().getX(), getBlockPos().getY(), getBlockPos().getZ(), modifiedCopy);
+                                }
+                            }
+                            if(this.selectedSlot == 9) {
+                                if(modifiedCopy.is(ModTags.SAUCE)) {
+                                    if(!player.getInventory().add(modifiedCopy)) {
+                                        Containers.dropItemStack(level, getBlockPos().getX(), getBlockPos().getY(), getBlockPos().getZ(), modifiedCopy);
+                                    }
+                                }
+                            }
+                            level.playSound(player, getBlockPos(), SoundEvents.ITEM_PICKUP, SoundSource.BLOCKS, 0.7F, 0.8F + level.random.nextFloat());
+                            removeFromSlot(this.selectedSlot);
+                            this.setChanged();
+                            return ItemInteractionResult.SUCCESS;
+                        }
+                    }
+                } else {
+                    //Get first empty or same stack
+                    for(int i = 0; i < inventory.getSlots(); i++) {
+                        ItemStack firstEmpty = inventory.getStackInSlot(i);
+
+                        if(firstEmpty.isEmpty()) {
+                            this.selectedSlot = i;
+                            break;
+                        }
+                    }
+
+                    if(stack.getItem() instanceof PotionItem) {
+                        if(!inventory.getStackInSlot(9).isEmpty()) {
+                            if(!player.getInventory().add(inventory.getStackInSlot(9))) {
+                                Containers.dropItemStack(level, getBlockPos().getX(), getBlockPos().getY(), getBlockPos().getZ(), inventory.getStackInSlot(9));
+                            }
+                        }
+
+                        ItemStack modifiedCopy = stack.copy();
+                        modifiedCopy.setCount(1);
+                        inventory.setStackInSlot(9, modifiedCopy);
+
+                        stack.shrink(player.isCreative() ? 0 : 1);
+                        ItemStack container = PizzaMenu.getItemStack(modifiedCopy);
+                        player.addItem(container);
+                        level.playSound(player, getBlockPos(), SoundEvents.AXOLOTL_SPLASH, SoundSource.BLOCKS, 0.7F, 0.8F + level.random.nextFloat());
+                        this.setChanged();
+                        return ItemInteractionResult.SUCCESS;
+                    }
+
+                    //Insert to selected slot or add to same stack if possible
+                    if(this.selectedSlot < 9 && canAddIngredient(stack, this.selectedSlot)) {
+                        ItemStack modifiedCopy = stack.copy();
+                        modifiedCopy.setCount(1);
+                        inventory.setStackInSlot(this.selectedSlot, modifiedCopy);
+
+                        stack.shrink(player.isCreative() ? 0 : 1);
+                        level.playSound(player, getBlockPos(), SoundEvents.ITEM_PICKUP, SoundSource.BLOCKS, 0.7F, 0.8F + level.random.nextFloat());
+                        this.setChanged();
+                        return ItemInteractionResult.SUCCESS;
+                    }
+                }
+            }
+        }
+        return ItemInteractionResult.FAIL;
     }
 
     public ItemStack cloneToItemStack(ItemStack stack) {
         if(this.inventory != null) {
-            NBTUtils.saveInventoryToStack(stack, this.inventory);
+            stack.set(ModDataComponents.PIZZA_INGREDIENTS, PizzaIngredients.fromHandler(this.inventory));
         }
 
         if(this.customName != null) {
-            stack.setHoverName(this.customName);
+            stack.set(DataComponents.CUSTOM_NAME, this.customName);
         }
 
         return stack;
@@ -88,7 +178,7 @@ public class PizzaBlockEntity extends BaseBlockEntity implements MenuProvider {
 
     public ItemStack getSlice(ItemStack stack) {
         if(this.inventory != null) {
-            NBTUtils.saveInventoryToStack(stack, this.inventory);
+            stack.set(ModDataComponents.PIZZA_INGREDIENTS, PizzaIngredients.fromHandler(this.inventory));
         }
 
         PizzaBlockCalculator calculator = new PizzaBlockCalculator(this.inventory);
@@ -96,19 +186,35 @@ public class PizzaBlockEntity extends BaseBlockEntity implements MenuProvider {
 
         int allNutrition = (calculator.getHunger() + 3) / 4 * 4;
 
-        NBTUtils.setHunger(stack, allNutrition / 4);
-        NBTUtils.setSaturation(stack, calculator.getSaturation());
-        NBTUtils.setEffects(stack, calculator.getEffects());
-
-        //FoodProperties.Builder foodProperties = new FoodProperties.Builder().nutrition(allNutrition / 4).saturationMod(calculator.getSaturation());
+        FoodProperties.Builder foodProperties = new FoodProperties.Builder().nutrition(allNutrition / 4).saturationModifier(calculator.getSaturation());
 
         //Mark for effects - add always edible if contains effects
-        //if(!calculator.getEffects().isEmpty()) {
-        //foodProperties.alwaysEat();
-        //}
+        if(!calculator.getEffects().isEmpty()) {
+            foodProperties.alwaysEdible();
+        }
 
-        //stack.set(DataComponents.FOOD, foodProperties.build());
+        stack.set(DataComponents.FOOD, foodProperties.build());
         return stack;
+    }
+
+    @Override
+    protected void applyImplicitComponents(BlockEntity.DataComponentInput pComponentInput) {
+        super.applyImplicitComponents(pComponentInput);
+        this.inventory = createHandler(pComponentInput.getOrDefault(ModDataComponents.PIZZA_INGREDIENTS, PizzaIngredients.fromHandler(this.inventory)).getIngredients());
+        this.customName = pComponentInput.getOrDefault(DataComponents.CUSTOM_NAME, null);
+    }
+
+    @Override
+    protected void collectImplicitComponents(DataComponentMap.Builder pComponents) {
+        super.collectImplicitComponents(pComponents);
+
+        if(this.inventory != null) {
+            pComponents.set(ModDataComponents.PIZZA_INGREDIENTS, PizzaIngredients.fromHandler(this.inventory));
+        }
+
+        if(this.hasCustomName()) {
+            pComponents.set(DataComponents.CUSTOM_NAME, getCustomName());
+        }
     }
 
     // ======== BAKING ========
@@ -187,7 +293,7 @@ public class PizzaBlockEntity extends BaseBlockEntity implements MenuProvider {
         if(stack.getItemHolder().is(ResourceLocation.fromNamespaceAndPath("some_assembly_required", "sandwich")))
             return false;
 
-        if(stack.getItem().getFoodProperties() != null || stack.is(ModTags.INGREDIENTS)) {
+        if(stack.has(DataComponents.FOOD) || stack.is(ModTags.INGREDIENTS)) {
             return inventory.getStackInSlot(slot).isEmpty();
         }
         return false;
@@ -222,19 +328,22 @@ public class PizzaBlockEntity extends BaseBlockEntity implements MenuProvider {
         };
     }
 
-    @Nonnull
-    @Override
-    public <T> LazyOptional<T> getCapability(@Nonnull final Capability<T> cap, @Nullable final Direction side) {
-        if(cap == ForgeCapabilities.ITEM_HANDLER)
-            return inventoryCapability.cast();
-        return super.getCapability(cap, side);
-    }
-
     // ======== CONTAINER ========
 
     @Override
-    public Component getDisplayName() {
+    public Component getName() {
         return this.customName != null ? this.customName : this.getDefaultName();
+    }
+
+    @Nullable
+    @Override
+    public Component getCustomName() {
+        return this.customName;
+    }
+
+    @Override
+    public Component getDisplayName() {
+        return this.getName();
     }
 
     public Component getDefaultName() {
@@ -249,7 +358,7 @@ public class PizzaBlockEntity extends BaseBlockEntity implements MenuProvider {
 
     public void openGUI(Player player, MenuProvider menuSupplier, BlockPos pos) {
         if(!player.level().isClientSide) {
-            NetworkHooks.openScreen((ServerPlayer)player, menuSupplier, pos);
+            player.openMenu(menuSupplier, pos);
         }
     }
 
@@ -264,14 +373,5 @@ public class PizzaBlockEntity extends BaseBlockEntity implements MenuProvider {
         builder.with(PizzaBakedModel.IS_RAW, Optional.of(isRaw()));
         ModelData modelData = builder.build();
         return modelData;
-    }
-
-    public ModelData getItemStackModelData(ItemStack stack) {
-        load(stack.getOrCreateTag());
-        ModelData.Builder builder = ModelData.builder();
-        builder.with(PizzaBakedModel.LAYER_PROVIDERS, Optional.of(getInventory()));
-        builder.with(PizzaBakedModel.INTEGER_PROPERTY, Optional.of(0));
-        builder.with(PizzaBakedModel.IS_RAW, Optional.of(stack.getItem() == ModItems.RAW_PIZZA.get()));
-        return builder.build();
     }
 }

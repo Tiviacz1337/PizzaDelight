@@ -6,11 +6,11 @@ import com.tiviacz.pizzadelight.init.ModBlockEntityTypes;
 import com.tiviacz.pizzadelight.init.ModItems;
 import com.tiviacz.pizzadelight.tags.ModTags;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -18,34 +18,28 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.PotionItem;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.ItemStackHandler;
-import net.minecraftforge.network.NetworkHooks;
+import net.neoforged.neoforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class PizzaStationBlockEntity extends BaseBlockEntity implements MenuProvider {
     private final ItemStackHandler inventory = createHandler();
-    private final LazyOptional<ItemStackHandler> inventoryCapability = LazyOptional.of(() -> this.inventory);
 
     public PizzaStationBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntityTypes.PIZZA_STATION.get(), pos, state);
     }
 
     @Override
-    public void load(CompoundTag compound) {
-        super.load(compound);
-        this.inventory.deserializeNBT(compound.getCompound(INVENTORY));
+    public void loadAdditional(CompoundTag compound, HolderLookup.Provider pRegistries) {
+        super.loadAdditional(compound, pRegistries);
+        this.inventory.deserializeNBT(pRegistries, compound.getCompound(INVENTORY));
     }
 
     @Override
-    public void saveAdditional(CompoundTag compound) {
-        super.saveAdditional(compound);
-        compound.put(INVENTORY, this.inventory.serializeNBT());
+    public void saveAdditional(CompoundTag compound, HolderLookup.Provider pRegistries) {
+        super.saveAdditional(compound, pRegistries);
+        compound.put(INVENTORY, this.inventory.serializeNBT(pRegistries));
     }
 
     public ItemStackHandler getInventory() {
@@ -65,16 +59,17 @@ public class PizzaStationBlockEntity extends BaseBlockEntity implements MenuProv
 
     public void openGUI(Player player, MenuProvider containerSupplier, BlockPos pos) {
         if(!player.level().isClientSide) {
-            NetworkHooks.openScreen((ServerPlayer)player, containerSupplier, pos);
+            player.openMenu(containerSupplier, pos);
         }
     }
 
     private ItemStackHandler createHandler() {
-        return new ItemStackHandler(12) {
+        return new ItemStackHandler(13) {
             @Override
             public boolean isItemValid(int slot, @NotNull ItemStack stack) {
                 //Prevent sandwiches
-                if(stack.getItemHolder().is(new ResourceLocation("some_assembly_required", "sandwich"))) return false;
+                if(stack.getItemHolder().is(ResourceLocation.fromNamespaceAndPath("some_assembly_required", "sandwich")))
+                    return false;
 
                 //Output
                 if(slot == 0) {
@@ -93,7 +88,7 @@ public class PizzaStationBlockEntity extends BaseBlockEntity implements MenuProv
                 if(PizzaDelightConfig.SERVER.allowOnlyRecommendedIngredients.get()) {
                     return stack.is(ModTags.INGREDIENTS);
                 }
-                return stack.isEdible() || stack.is(ModTags.INGREDIENTS);
+                return stack.has(DataComponents.FOOD) || stack.is(ModTags.INGREDIENTS);
             }
 
             @Override
@@ -102,13 +97,5 @@ public class PizzaStationBlockEntity extends BaseBlockEntity implements MenuProv
                 setChanged();
             }
         };
-    }
-
-    @Nonnull
-    @Override
-    public <T> LazyOptional<T> getCapability(@Nonnull final Capability<T> cap, @Nullable final Direction side) {
-        if(cap == ForgeCapabilities.ITEM_HANDLER)
-            return inventoryCapability.cast();
-        return super.getCapability(cap, side);
     }
 }

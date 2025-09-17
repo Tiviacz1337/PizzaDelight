@@ -1,5 +1,5 @@
 {
-  "parent": "forge:item/default",
+  "parent": "neoforge:item/default",
   "loader": "pizzadelight:pizza_slice_loader",
   "textures": {
     "particle": "pizzadelight:item/pizza_slice",

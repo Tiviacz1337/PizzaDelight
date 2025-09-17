@@ -9,7 +9,7 @@ import net.minecraft.client.model.geom.builders.*;
 import net.minecraft.resources.ResourceLocation;
 
 public class ChefHatModel extends HumanoidModel {
-    public static final ModelLayerLocation CHEF_HAT = new ModelLayerLocation(new ResourceLocation(PizzaDelight.MODID, "chef_hat"), "main");
+    public static final ModelLayerLocation CHEF_HAT = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(PizzaDelight.MODID, "chef_hat"), "main");
 
     public ChefHatModel(ModelPart root) {
         super(root);

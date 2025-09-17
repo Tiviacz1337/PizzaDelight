@@ -1,0 +1,38 @@
+modLoader="javafml" #mandatory
+loaderVersion="${loader_version_range}" #mandatory
+license="${mod_license}"
+
+#issueTrackerURL="https://github.com/Tiviacz1337/PizzaCraft/issues"
+
+[[mods]] #mandatory
+    modId="${mod_id}" #mandatory
+    version="${mod_version}" #mandatory
+    displayName="${mod_display_name}" #mandatory
+    updateJSONURL="https://gist.githubusercontent.com/Tiviacz1337/906937677aa472285dff9d6c2a189d5e/raw"
+    displayURL="https://www.curseforge.com/minecraft/mc-mods/pizza-delight"
+    authors="${mod_authors}" #optional
+    description='''${mod_description}'''
+
+[[accessTransformers]]
+    file="META-INF/accesstransformer.cfg"
+
+[[dependencies.${mod_id}]]
+    modId="farmersdelight"
+    type="required"
+    versionRange="[1.2.4,)"
+    ordering="AFTER"
+    side="BOTH"
+
+[[dependencies.${mod_id}]] #optional
+    modId="neoforge" #mandatory
+    type="required" #mandatory
+    versionRange="${neo_version_range}" #mandatory
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.${mod_id}]]
+    modId="minecraft"
+    type="required"
+    versionRange="${minecraft_version_range}"
+    ordering="NONE"
+    side="BOTH"

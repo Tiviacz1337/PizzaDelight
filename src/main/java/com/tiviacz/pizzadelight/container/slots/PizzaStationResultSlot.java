@@ -1,14 +1,14 @@
 package com.tiviacz.pizzadelight.container.slots;
 
 import com.tiviacz.pizzadelight.container.PizzaStationMenu;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.BowlFoodItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.PotionItem;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.ItemHandlerHelper;
-import net.minecraftforge.items.SlotItemHandler;
+import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.items.ItemHandlerHelper;
+import net.neoforged.neoforge.items.SlotItemHandler;
 
 import javax.annotation.Nonnull;
 
@@ -38,7 +38,7 @@ public class PizzaStationResultSlot extends SlotItemHandler {
 
             if(!itemStack.isEmpty()) {
                 boolean isPotion = itemStack.getItem() instanceof PotionItem;
-                boolean isSoup = itemStack.getItem() instanceof BowlFoodItem;
+                boolean isSauce = itemStack.has(DataComponents.FOOD) && !itemStack.get(DataComponents.FOOD).usingConvertsTo().isEmpty();
 
                 ItemStack container = itemStack.getCraftingRemainingItem();
                 itemStack.shrink(1);
@@ -47,8 +47,8 @@ public class PizzaStationResultSlot extends SlotItemHandler {
                 if(container.isEmpty()) {
                     if(isPotion) {
                         container = new ItemStack(Items.GLASS_BOTTLE);
-                    } else if(isSoup) {
-                        container = new ItemStack(Items.BOWL);
+                    } else if(isSauce) {
+                        container = itemStack.get(DataComponents.FOOD).usingConvertsTo().get();
                     }
                 }
 

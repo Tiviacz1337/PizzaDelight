@@ -20,29 +20,23 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.FastColor;
 
 import java.util.Random;
 
 public class BasinRenderer implements BlockEntityRenderer<BasinBlockEntity> {
-    // public static final ResourceLocation CONTENT = new ResourceLocation(PizzaCraft.MODID, "content");
-    // public static final ResourceLocation SAUCE = new ResourceLocation(PizzaCraft.MODID, "sauce");
-
-    private static final ResourceLocation MILK_TEX = new ResourceLocation(PizzaDelight.MODID, "textures/block/milk.png");
-    private static final ResourceLocation CHEESE_TEX = new ResourceLocation(PizzaDelight.MODID, "textures/block/cheese.png");
-    private static final ResourceLocation OLIVE_OIL_TEX = new ResourceLocation(PizzaDelight.MODID, "textures/block/olive_oil.png");
+    private static final ResourceLocation MILK_TEX = ResourceLocation.fromNamespaceAndPath(PizzaDelight.MODID, "textures/block/milk.png");
+    private static final ResourceLocation CHEESE_TEX = ResourceLocation.fromNamespaceAndPath(PizzaDelight.MODID, "textures/block/cheese.png");
     private final Random rand = new Random();
 
-    protected ContentModel cheese; //= new ContentModel(64, 32); //#TODO NEW MILK TEXTURE
-    protected ContentModel milk; //= new ContentModel(64, 32);
-    protected ContentModel model; //= new ContentModel(64, 32);
-    protected SauceModel sauce;
+    protected ContentModel cheese;
+    protected ContentModel milk;
+    protected ContentModel model;
 
     public BasinRenderer(BlockEntityRendererProvider.Context context) {
-        //  super(rendererDispatcherIn);
         cheese = new ContentModel(context);
         milk = new ContentModel(context);
         model = new ContentModel(context);
-        //sauce = new SauceModel(context);
     }
 
     @Override
@@ -55,40 +49,15 @@ public class BasinRenderer implements BlockEntityRenderer<BasinBlockEntity> {
 
         if(basinContent.getContentType() == BasinContentType.FERMENTING_MILK || basinContent.getContentType() == BasinContentType.MILK) {
             float progressToFloatInv = 1.0F - (float)blockEntity.getFermentProgress() / blockEntity.getDefaultFermentTime();
-            cheese.renderToBuffer(poseStack, bufferIn.getBuffer(RenderType.entitySolid(CHEESE_TEX)), combinedLightIn, combinedOverlayIn, 1.0F, 1.0F, 1.0F, 1.0F);
-            milk.renderToBuffer(poseStack, bufferIn.getBuffer(RenderType.entityTranslucent(MILK_TEX)), combinedLightIn, combinedOverlayIn, 1.0F, 1.0F, 1.0F, progressToFloatInv);
+            cheese.renderToBuffer(poseStack, bufferIn.getBuffer(RenderType.entitySolid(CHEESE_TEX)), combinedLightIn, combinedOverlayIn, -1);
+            milk.renderToBuffer(poseStack, bufferIn.getBuffer(RenderType.entityTranslucent(MILK_TEX)), combinedLightIn, combinedOverlayIn, FastColor.ARGB32.colorFromFloat(progressToFloatInv, 1.0F, 1.0F, 1.0F));
         }
         if(basinContent.getContentType() == BasinContentType.CHEESE) {
-            model.renderToBuffer(poseStack, bufferIn.getBuffer(RenderType.entitySolid(tex)), combinedLightIn, combinedOverlayIn, 1.0F, 1.0F, 1.0F, 1.0F);
+            model.renderToBuffer(poseStack, bufferIn.getBuffer(RenderType.entitySolid(tex)), combinedLightIn, combinedOverlayIn, -1);
         }
 
         poseStack.popPose();
     }
-
- /*   private void renderContentsList(List<ITextComponent> components, FontRenderer fontrenderer, MatrixStack matrixStack, IRenderTypeBuffer bufferIn, int packedLightIn)
-    {
-            matrixStack.pushPose();
-
-            matrixStack.translate(0.5D, 2.0, 0.5D);
-            Matrix4f matrix4f = matrixStack.last().pose();
-
-            //float f1 = Minecraft.getInstance().gameSettings.getTextBackgroundOpacity(0.25F);
-            //int j = (int) (f1 * 255.0F) << 24;
-
-            matrixStack.mulPose(renderer.camera.rotation());
-
-            matrixStack.scale(-0.025F, -0.025F, -0.025F);
-
-            for(ITextComponent text : components)
-            {
-                matrixStack.translate(0.0D, 15, 0.0D);
-                float f2 = (float) (-fontrenderer.width(text) / 2);
-                //fontrenderer.func_243247_a(text, f2, 0, 553648127, false, matrix4f, bufferIn, false, j, packedLightIn);
-                fontrenderer.drawInBatch(text, f2, 0, -1, false, matrix4f, bufferIn, false, 0, packedLightIn);
-            }
-            matrixStack.popPose();
-
-    } */
 
     public ResourceLocation getTexture(BasinContent content) {
         return switch(content.getContentType()) {
@@ -99,22 +68,18 @@ public class BasinRenderer implements BlockEntityRenderer<BasinBlockEntity> {
     }
 
     public static class ContentModel extends Model {
-        public static final ResourceLocation CONTENT = new ResourceLocation(PizzaDelight.MODID, "content");
+        public static final ResourceLocation CONTENT = ResourceLocation.fromNamespaceAndPath(PizzaDelight.MODID, "content");
         public static final ModelLayerLocation CONTENT_LAYER = new ModelLayerLocation(CONTENT, "main");
         private final ModelPart content;
 
         public ContentModel(BlockEntityRendererProvider.Context context) {
             super(RenderType::entitySolid);
             content = context.getModelSet().bakeLayer(CONTENT_LAYER).getChild("main");
-            //this.texHeight = height;
-            //this.texWidth = width;
-            // this.content = new ModelRenderer(this);
-            //this.content.addBox(2.0F, 1.0F, 2.0F, 12.0F, 6.0F, 12.0F);
         }
 
         @Override
-        public void renderToBuffer(PoseStack poseStack, VertexConsumer bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) {
-            this.content.render(poseStack, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
+        public void renderToBuffer(PoseStack poseStack, VertexConsumer bufferIn, int pPackedLight, int pPackedOverlay, int pColor) {
+            this.content.render(poseStack, bufferIn, pPackedLight, pPackedOverlay, pColor);
         }
 
         public static LayerDefinition createModelData() {
@@ -126,60 +91,4 @@ public class BasinRenderer implements BlockEntityRenderer<BasinBlockEntity> {
             return LayerDefinition.create(mesh, 64, 32);
         }
     }
-
-    public static class SauceModel extends Model {
-        public static final ResourceLocation SAUCE = new ResourceLocation(PizzaDelight.MODID, "sauce");
-        public static final ModelLayerLocation SAUCE_LAYER = new ModelLayerLocation(SAUCE, "main");
-        private final ModelPart sauce;
-
-        public SauceModel(float height) {
-            super(RenderType::entitySolid);
-            sauce = createModelDataWithHeight(height).bakeRoot().getChild("main");
-            //context.getModelSet().bakeLayer(SAUCE_LAYER).getChild("main");
-        }
-
-        @Override
-        public void renderToBuffer(PoseStack poseStack, VertexConsumer bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) {
-            this.sauce.render(poseStack, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
-        }
-
-        public static LayerDefinition createModelData() {
-            return createModelDataWithHeight(6.0F);
-         /*   MeshDefinition mesh = new MeshDefinition();
-            mesh.getRoot().addOrReplaceChild("main",
-                    CubeListBuilder.create().addBox(2.0F, 1.0F, 2.0F, 12.0F, 6.0F, 12.0F),
-                    PartPose.ZERO
-            );
-            return LayerDefinition.create(mesh, 64, 32); */
-        }
-
-        public static LayerDefinition createModelDataWithHeight(float height) {
-            MeshDefinition mesh = new MeshDefinition();
-            mesh.getRoot().addOrReplaceChild("main",
-                    CubeListBuilder.create().addBox(2.0F, 1.0F, 2.0F, 12.0F, height, 12.0F),
-                    PartPose.ZERO
-            );
-            return LayerDefinition.create(mesh, 64, 32);
-        }
-    }
-
-  /*  private static class SauceModel extends Model
-    {
-        ModelRenderer sauce;
-
-        public SauceModel(int width, int height, float size)
-        {
-            super(RenderType::entitySolid);
-            this.texHeight = height;
-            this.texWidth = width;
-            this.sauce = new ModelRenderer(this);
-            this.sauce.addBox(2.0F, 1.0F, 2.0F, 12.0F, size, 12.0F);
-        }
-
-        @Override
-        public void renderToBuffer(MatrixStack matrixStackIn, IVertexBuilder bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha)
-        {
-            this.sauce.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
-        }
-    } */ //TODO
 }

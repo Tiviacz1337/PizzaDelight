@@ -7,6 +7,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.ItemStack;
@@ -49,12 +50,12 @@ public class CheeseBlock extends Block {
     }
 
     @Override
-    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand handIn, BlockHitResult hit) {
-        ItemStack heldStack = player.getItemInHand(handIn);
-        if(!heldStack.isEmpty()) {
-            return heldStack.is(ModTags.KNIVES) ? this.cutCheese(level, pos, state, player) : InteractionResult.PASS;
-        }
+    public ItemInteractionResult useItemOn(ItemStack heldStack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+        return heldStack.is(ModTags.KNIVES) ? this.cutCheese(level, pos, state, player) : ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+    }
 
+    @Override
+    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
         if(level.isClientSide) {
             if(this.eatBite(level, pos, state, player).consumesAction()) {
                 return InteractionResult.SUCCESS;
@@ -72,10 +73,10 @@ public class CheeseBlock extends Block {
         if(!playerIn.canEat(false)) {
             return InteractionResult.PASS;
         } else {
-            ItemStack cheeseStack = ModItems.CHEESE.get().getDefaultInstance();
+            ItemStack cheeseStack = ModItems.CHEESE.toStack();
             FoodProperties cheeseFood = cheeseStack.getItem().getFoodProperties(cheeseStack, playerIn);
             if(cheeseFood != null) {
-                playerIn.getFoodData().eat(cheeseStack.getItem(), cheeseStack, playerIn);
+                playerIn.getFoodData().eat(cheeseFood);
             }
 
             int bites = state.getValue(BITES);
@@ -90,9 +91,9 @@ public class CheeseBlock extends Block {
         }
     }
 
-    protected InteractionResult cutCheese(Level level, BlockPos pos, BlockState state, Player player) {
+    protected ItemInteractionResult cutCheese(Level level, BlockPos pos, BlockState state, Player player) {
         int bites = state.getValue(BITES);
-        ItemStack cheeseStack = ModItems.CHEESE.get().getDefaultInstance();
+        ItemStack cheeseStack = ModItems.CHEESE.toStack();
 
         if(bites < this.getMaxBites() - 1) {
             level.setBlock(pos, state.setValue(BITES, bites + 1), 3);
@@ -103,7 +104,7 @@ public class CheeseBlock extends Block {
         Direction direction = player.getDirection().getOpposite();
         ItemUtils.spawnItemEntity(level, cheeseStack, (double)pos.getX() + 0.5, (double)pos.getY() + 0.5, (double)pos.getZ() + 0.5, (double)direction.getStepX() * 0.15, 0.05, (double)direction.getStepZ() * 0.15);
         level.playSound(null, pos, SoundEvents.FUNGUS_BREAK, SoundSource.PLAYERS, 0.8F, 0.8F);
-        return InteractionResult.SUCCESS;
+        return ItemInteractionResult.SUCCESS;
     }
 
     @Override

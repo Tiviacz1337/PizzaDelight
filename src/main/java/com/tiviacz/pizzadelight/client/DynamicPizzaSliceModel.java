@@ -4,9 +4,11 @@ import com.google.common.collect.Maps;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
 import com.mojang.math.Transformation;
+import com.tiviacz.pizzadelight.PizzaDelight;
+import com.tiviacz.pizzadelight.components.PizzaIngredients;
+import com.tiviacz.pizzadelight.init.ModDataComponents;
 import com.tiviacz.pizzadelight.init.ModItems;
 import com.tiviacz.pizzadelight.init.PizzaLayers;
-import com.tiviacz.pizzadelight.util.NBTUtils;
 import com.tiviacz.pizzadelight.util.RenderUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -14,22 +16,20 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.*;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.PotionItem;
-import net.minecraft.world.item.alchemy.PotionUtils;
-import net.minecraftforge.client.ForgeRenderTypes;
-import net.minecraftforge.client.RenderTypeGroup;
-import net.minecraftforge.client.model.CompositeModel;
-import net.minecraftforge.client.model.SimpleModelState;
-import net.minecraftforge.client.model.geometry.*;
-import net.minecraftforge.items.ItemStackHandler;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import net.minecraft.world.item.alchemy.PotionContents;
+import net.neoforged.neoforge.client.NeoForgeRenderTypes;
+import net.neoforged.neoforge.client.RenderTypeGroup;
+import net.neoforged.neoforge.client.model.CompositeModel;
+import net.neoforged.neoforge.client.model.SimpleModelState;
+import net.neoforged.neoforge.client.model.geometry.*;
+import net.neoforged.neoforge.items.ItemStackHandler;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
@@ -41,8 +41,6 @@ import java.util.Map;
 import java.util.function.Function;
 
 public class DynamicPizzaSliceModel implements IUnbakedGeometry<DynamicPizzaSliceModel> {
-    private static final Logger LOGGER = LogManager.getLogger();
-
     // minimal Z offset to prevent depth-fighting
     private static final float NORTH_Z_COVER = 7.496f / 16f;
     private static final float SOUTH_Z_COVER = 8.504f / 16f;
@@ -64,14 +62,14 @@ public class DynamicPizzaSliceModel implements IUnbakedGeometry<DynamicPizzaSlic
     }
 
     @Override
-    public BakedModel bake(IGeometryBakingContext context, ModelBaker baker, Function<Material, TextureAtlasSprite> spriteGetter, ModelState modelState, ItemOverrides overrides, ResourceLocation modelLocation) {
+    public BakedModel bake(IGeometryBakingContext context, ModelBaker baker, Function<Material, TextureAtlasSprite> spriteGetter, ModelState modelState, ItemOverrides overrides) {
         Material particleLocation = context.hasMaterial("particle") ? context.getMaterial("particle") : null;
         Material baseLocation = context.hasMaterial("base") ? context.getMaterial("base") : null;
 
         List<TagKey<Item>> tags = new ArrayList<>();
         LayerSelector selector = new LayerSelector(true);
 
-        ItemStackHandler handler = NBTUtils.createHandlerFromStack(stack, 10);
+        ItemStackHandler handler = new ItemStackHandler(stack.getOrDefault(ModDataComponents.PIZZA_INGREDIENTS, PizzaIngredients.EMPTY).getIngredients());
 
         for(int i = 0; i < handler.getSlots(); i++) {
             tags.add(null);
@@ -126,7 +124,7 @@ public class DynamicPizzaSliceModel implements IUnbakedGeometry<DynamicPizzaSlic
         if(!rootTransform.isIdentity())
             modelState = new SimpleModelState(modelState.getRotation().compose(rootTransform), modelState.isUvLocked());
 
-        var itemContext = StandaloneGeometryBakingContext.builder(context).withGui3d(false).withUseBlockLight(false).build(modelLocation);
+        var itemContext = StandaloneGeometryBakingContext.builder(context).withGui3d(false).withUseBlockLight(false).build(ResourceLocation.fromNamespaceAndPath(PizzaDelight.MODID, "pizza_slice_override"));
         CompositeModel.Baked.Builder builder = CompositeModel.Baked.builder(itemContext, particleSprite, new DynamicPizzaSliceModel.PizzaSliceOverrideHandler(overrides, baker, itemContext, this), context.getTransforms());
 
         var normalRenderTypes = getLayerRenderTypes();
@@ -136,8 +134,8 @@ public class DynamicPizzaSliceModel implements IUnbakedGeometry<DynamicPizzaSlic
             TextureAtlasSprite sprite = spriteGetter.apply(baseLocation);
 
             // Base texture
-            var unbaked = UnbakedGeometryHelper.createUnbakedItemElements(0, sprite.contents());
-            var quads = UnbakedGeometryHelper.bakeElements(unbaked, $ -> sprite, modelState, modelLocation);
+            var unbaked = UnbakedGeometryHelper.createUnbakedItemElements(0, sprite);
+            var quads = UnbakedGeometryHelper.bakeElements(unbaked, $ -> sprite, modelState);
             builder.addQuads(normalRenderTypes, quads);
         }
 
@@ -154,8 +152,8 @@ public class DynamicPizzaSliceModel implements IUnbakedGeometry<DynamicPizzaSlic
 
                 if(sprite != null) {
                     var transformedState = new SimpleModelState(modelState.getRotation().compose(getLayerTransformation(i)), modelState.isUvLocked());
-                    var unbaked = UnbakedGeometryHelper.createUnbakedItemMaskElements(2, sprite.contents()); // Use cover as mask
-                    var quads = UnbakedGeometryHelper.bakeElements(unbaked, $ -> sprite, transformedState, modelLocation);
+                    var unbaked = UnbakedGeometryHelper.createUnbakedItemMaskElements(2, sprite); // Use cover as mask
+                    var quads = UnbakedGeometryHelper.bakeElements(unbaked, $ -> sprite, transformedState);
 
                     ColoredQuadTransformer colorizer = new ColoredQuadTransformer();
 
@@ -164,8 +162,9 @@ public class DynamicPizzaSliceModel implements IUnbakedGeometry<DynamicPizzaSlic
 
                         int color = RenderUtils.getDominantColor(Minecraft.getInstance().getItemRenderer().getItemModelShaper().getItemModel(handler.getStackInSlot(tintIndexes.get(j))).getParticleIcon(), false);
 
-                        if(handler.getStackInSlot(tintIndexes.get(j)).getItem() instanceof PotionItem) {
-                            color = PotionUtils.getColor(handler.getStackInSlot(tintIndexes.get(j)));
+                        if(handler.getStackInSlot(tintIndexes.get(j)).has(DataComponents.POTION_CONTENTS)) {
+                            PotionContents contents = handler.getStackInSlot(tintIndexes.get(j)).getOrDefault(DataComponents.POTION_CONTENTS, PotionContents.EMPTY);
+                            color = contents.getColor();
                         }
 
                         colorizer.color(quads, color);
@@ -195,7 +194,7 @@ public class DynamicPizzaSliceModel implements IUnbakedGeometry<DynamicPizzaSlic
     }
 
     public static RenderTypeGroup getLayerRenderTypes() {
-        return new RenderTypeGroup(RenderType.translucent(), ForgeRenderTypes.ITEM_UNSORTED_TRANSLUCENT.get());
+        return new RenderTypeGroup(RenderType.translucent(), NeoForgeRenderTypes.ITEM_UNSORTED_TRANSLUCENT.get());
     }
 
     public enum Loader implements IGeometryLoader<DynamicPizzaSliceModel> {
@@ -225,12 +224,12 @@ public class DynamicPizzaSliceModel implements IUnbakedGeometry<DynamicPizzaSlic
         public BakedModel resolve(BakedModel originalModel, ItemStack stack, @Nullable ClientLevel level, @Nullable LivingEntity entity, int integer) {
             BakedModel overriden = nested.resolve(originalModel, stack, level, entity, integer);
             if(overriden != originalModel) return overriden;
-            if(stack.getTag() != null) {
-                String name = stack.getTag().getCompound("Inventory").toString();
+            if(stack.has(ModDataComponents.PIZZA_INGREDIENTS)) {
+                String name = stack.get(ModDataComponents.PIZZA_INGREDIENTS).getIngredients().toString();
 
                 if(!cache.containsKey(name)) {
                     DynamicPizzaSliceModel unbaked = this.parent.withStack(stack);
-                    BakedModel bakedModel = unbaked.bake(owner, baker, Material::sprite, BlockModelRotation.X0_Y0, this, new ResourceLocation("pizzacraft:pizza_slice_override"));
+                    BakedModel bakedModel = unbaked.bake(owner, baker, Material::sprite, BlockModelRotation.X0_Y0, this);
                     cache.put(name, bakedModel);
                     return bakedModel;
                 }

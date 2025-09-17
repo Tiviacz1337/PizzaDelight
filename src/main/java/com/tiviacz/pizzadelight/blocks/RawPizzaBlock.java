@@ -11,7 +11,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
@@ -28,8 +27,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 import javax.annotation.Nullable;
 
@@ -64,8 +63,34 @@ public class RawPizzaBlock extends Block implements EntityBlock {
         }
     }
 
+ /*   @Override
+    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult)
+    {
+        if(player.getItemInHand(hand).getItem() instanceof PizzaPeelItem && level.getBlockEntity(pos) instanceof PizzaBlockEntity blockEntity)
+        {
+            ItemStack pizza = asItem().getDefaultInstance();
+            pizza = blockEntity.cloneToItemStack(pizza);
+
+            if(!level.isClientSide)
+            {
+                level.addFreshEntity(new ItemEntity(level, pos.getX(), pos.getY(), pos.getZ(), pizza));
+            }
+
+            level.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
+
+            return ItemInteractionResult.SUCCESS;
+        }
+
+        if(level.getBlockEntity(pos) instanceof PizzaBlockEntity blockEntity)
+        {
+            //blockEntity.openGUI(player, blockEntity, pos);
+            //return blockEntity.onBlockActivated(player, hand);
+        }
+        return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+    } */
+
     @Override
-    public void playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
+    public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
         if(level.getBlockEntity(pos) instanceof PizzaBlockEntity blockEntity && !player.isCreative() && !(player.getMainHandItem().getItem() instanceof PizzaPeelItem)) {
             for(int i = 0; i < blockEntity.getInventory().getSlots(); i++) {
                 if(!blockEntity.getInventory().getStackInSlot(i).isEmpty()) {
@@ -74,7 +99,7 @@ public class RawPizzaBlock extends Block implements EntityBlock {
                 }
             }
         }
-        super.playerWillDestroy(level, pos, state, player);
+        return super.playerWillDestroy(level, pos, state, player);
     }
 
     @Override
@@ -85,17 +110,8 @@ public class RawPizzaBlock extends Block implements EntityBlock {
     }
 
     @Override
-    public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
-        if(level.getBlockEntity(pos) instanceof PizzaBlockEntity blockEntity) {
-            if(stack.getTag() != null) {
-                blockEntity.load(stack.getOrCreateTag());
-            }
-        }
-    }
-
-    @Override
-    public ItemStack getCloneItemStack(BlockState state, HitResult result, BlockGetter level, BlockPos pos, Player player) {
-        ItemStack stack = super.getCloneItemStack(state, result, level, pos, player);
+    public ItemStack getCloneItemStack(BlockState state, HitResult target, LevelReader level, BlockPos pos, Player player) {
+        ItemStack stack = super.getCloneItemStack(state, target, level, pos, player);
         if(level.getBlockEntity(pos) instanceof PizzaBlockEntity blockEntity) {
             stack = blockEntity.cloneToItemStack(stack);
             return stack;

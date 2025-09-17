@@ -7,26 +7,21 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.neoforge.registries.DeferredBlock;
+import net.neoforged.neoforge.registries.DeferredRegister;
 
 import java.util.function.Supplier;
 
 public class ModBlocks {
-    public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, PizzaDelight.MODID);
+    public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(PizzaDelight.MODID);
 
-    public static final RegistryObject<Block> PIZZA = registerBlock("pizza", () -> new PizzaBlock(Block.Properties.copy(Blocks.CAKE)));
-    public static final RegistryObject<Block> RAW_PIZZA = registerBlock("raw_pizza", () -> new RawPizzaBlock(Block.Properties.copy(Blocks.CAKE)));
-    public static final RegistryObject<Block> CHEESE_BLOCK = registerBlock("cheese_block", () -> new CheeseBlock(Block.Properties.copy(Blocks.CAKE).mapColor(MapColor.COLOR_YELLOW).strength(0.5F).sound(SoundType.FUNGUS)));
-    public static final RegistryObject<Block> PIZZA_STATION = registerBlock("pizza_station", () -> new PizzaStationBlock(BlockBehaviour.Properties.copy(Blocks.STONE).mapColor(MapColor.STONE).strength(1.5F, 6.0F)));
-    public static final RegistryObject<Block> BASIN = registerBlock("basin", () -> new BasinBlock(Block.Properties.copy(Blocks.IRON_BLOCK).mapColor(MapColor.COLOR_BLACK).strength(1.5F, 6.0F)));
+    public static final DeferredBlock<Block> PIZZA = registerBlock("pizza", () -> new PizzaBlock(Block.Properties.ofFullCopy(Blocks.CAKE)));
+    public static final DeferredBlock<Block> RAW_PIZZA = registerBlock("raw_pizza", () -> new RawPizzaBlock(Block.Properties.ofFullCopy(Blocks.CAKE)));
+    public static final DeferredBlock<Block> CHEESE_BLOCK = registerBlock("cheese_block", () -> new CheeseBlock(Block.Properties.ofFullCopy(Blocks.CAKE).mapColor(MapColor.COLOR_YELLOW).sound(SoundType.FUNGUS)));
+    public static final DeferredBlock<Block> PIZZA_STATION = registerBlock("pizza_station", () -> new PizzaStationBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.CRAFTING_TABLE)));
+    public static final DeferredBlock<Block> BASIN = registerBlock("basin", () -> new BasinBlock(Block.Properties.ofFullCopy(vectorwing.farmersdelight.common.registry.ModBlocks.COOKING_POT.get())));
 
-    //Crops
-    //public static final RegistryObject<Block> WILD_PEPPERS = registerBlock("wild_peppers", () -> new WildCropBlock(MobEffects.GLOWING, 6, BlockBehaviour.Properties.copy(Blocks.TALL_GRASS)));
-    //public static final RegistryObject<Block> PEPPER_CROP = registerBlock("peppers", () -> new PepperBlock(BlockBehaviour.Properties.copy(Blocks.WHEAT)));
-
-    public static RegistryObject<Block> registerBlock(final String name, Supplier<Block> block) {
+    public static DeferredBlock<Block> registerBlock(final String name, Supplier<Block> block) {
         return BLOCKS.register(name, block);
     }
 }

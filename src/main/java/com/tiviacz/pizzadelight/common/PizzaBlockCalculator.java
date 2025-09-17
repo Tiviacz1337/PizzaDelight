@@ -1,10 +1,9 @@
 package com.tiviacz.pizzadelight.common;
 
-import com.mojang.datafixers.util.Pair;
-import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.items.ItemStackHandler;
+import net.neoforged.neoforge.items.ItemStackHandler;
 
 import java.util.List;
 
@@ -22,11 +21,11 @@ public class PizzaBlockCalculator extends PizzaCalculator {
         }
 
         if(getEffect() != null) {
-            this.effects.add(Pair.of(getEffect(), 1.0F));
+            this.effects.add(new FoodProperties.PossibleEffect(this::getEffect, 1.0F));
         }
     }
 
-    public List<Pair<MobEffectInstance, Float>> findEffects() {
+    public List<FoodProperties.PossibleEffect> findEffects() {
         this.effects.clear();
         this.processedFoods.clear();
 
@@ -35,7 +34,7 @@ public class PizzaBlockCalculator extends PizzaCalculator {
         }
 
         if(getEffect() != null) {
-            this.effects.add(Pair.of(getEffect(), 1.0F));
+            this.effects.add(new FoodProperties.PossibleEffect(this::getEffect, 1.0F));
         }
         return this.effects;
     }
@@ -48,24 +47,24 @@ public class PizzaBlockCalculator extends PizzaCalculator {
         return this.saturation;
     }
 
-    public List<Pair<MobEffectInstance, Float>> getEffects() {
+    public List<FoodProperties.PossibleEffect> getEffects() {
         return this.effects;
     }
 
     public void findEffects(ItemStack stack) {
-        if(stack.getFoodProperties(null) == null) return;
+        if(!stack.has(DataComponents.FOOD)) return;
 
-        FoodProperties food = stack.getFoodProperties(null);
+        FoodProperties food = stack.getItem().getFoodProperties(stack, null);
 
-        if(!food.getEffects().isEmpty()) {
-            for(Pair<MobEffectInstance, Float> possibleEffect : food.getEffects()) {
+        if(!food.effects().isEmpty()) {
+            for(FoodProperties.PossibleEffect possibleEffect : food.effects()) {
                 if(!effects.contains(possibleEffect)) {
                     effects.add(possibleEffect);
                 }
             }
         }
 
-        if(processedFoods.stream().noneMatch(s -> ItemStack.isSameItemSameTags(s, stack))) {
+        if(processedFoods.stream().noneMatch(s -> ItemStack.isSameItemSameComponents(s, stack))) {
             this.uniqueness += 1;
         }
         processedFoods.add(stack);

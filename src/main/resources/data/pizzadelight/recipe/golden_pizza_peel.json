@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "  C",
+    " X ",
+    "X  "
+  ],
+  "key": {
+    "C": {
+      "tag": "c:ingots/gold"
+    },
+    "X": {
+      "tag": "c:rods/wooden"
+    }
+  },
+  "result": {
+    "count": 1,
+    "id": "pizzadelight:golden_pizza_peel"
+  }
+}

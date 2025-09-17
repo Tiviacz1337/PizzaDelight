@@ -1,26 +1,24 @@
 package com.tiviacz.pizzadelight;
 
 import com.tiviacz.pizzadelight.blockentity.content.BasinContent;
-import com.tiviacz.pizzadelight.client.gui.ScreenPizza;
-import com.tiviacz.pizzadelight.client.gui.ScreenPizzaStation;
 import com.tiviacz.pizzadelight.client.renderer.BasinRenderer;
 import com.tiviacz.pizzadelight.client.renderer.PizzaRenderer;
-import com.tiviacz.pizzadelight.compat.appleskin.PizzaCompat;
 import com.tiviacz.pizzadelight.config.PizzaDelightConfig;
 import com.tiviacz.pizzadelight.init.*;
-import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.fml.ModList;
-import net.minecraftforge.fml.ModLoadingContext;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.network.simple.SimpleChannel;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.config.ModConfig;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.fml.event.lifecycle.FMLLoadCompleteEvent;
+import net.neoforged.fml.loading.FMLEnvironment;
+import net.neoforged.neoforge.client.gui.ConfigurationScreen;
+import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -28,44 +26,34 @@ import org.apache.logging.log4j.Logger;
 public class PizzaDelight {
     public static final String MODID = "pizzadelight";
     public static final Logger LOGGER = LogManager.getLogger();
-    public static SimpleChannel NETWORK;
 
-    public static boolean appleSkinLoaded;
+    public PizzaDelight(IEventBus eventBus, ModContainer modContainer) {
+        modContainer.registerConfig(ModConfig.Type.SERVER, PizzaDelightConfig.serverSpec);
 
-    public PizzaDelight() {
-        PizzaDelightConfig.register(ModLoadingContext.get());
+        if(FMLEnvironment.dist == Dist.CLIENT)
+            modContainer.registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new);
 
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::doClientStuff);
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onFinish);
+        eventBus.addListener(this::setup);
+        eventBus.addListener(this::doClientStuff);
+        eventBus.addListener(this::onFinish);
 
-        final IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
-
-        ModItems.ITEMS.register(modEventBus);
-        ModBlocks.BLOCKS.register(modEventBus);
-        ModBlockEntityTypes.BLOCK_ENTITY_TYPES.register(modEventBus);
-        ModMenuTypes.MENU_TYPES.register(modEventBus);
-        ModSounds.SOUND_EVENTS.register(modEventBus);
-        ModCreativeTabs.CREATIVE_MODE_TABS.register(modEventBus);
-
-        appleSkinLoaded = ModList.get().isLoaded("appleskin");
-
-        if(appleSkinLoaded) PizzaCompat.load();
+        ModItems.ITEMS.register(eventBus);
+        ModBlocks.BLOCKS.register(eventBus);
+        ModBlockEntityTypes.BLOCK_ENTITY_TYPES.register(eventBus);
+        ModMenuTypes.MENU_TYPES.register(eventBus);
+        ModSounds.SOUND_EVENTS.register(eventBus);
+        ModCreativeTabs.CREATIVE_MODE_TABS.register(eventBus);
+        ModDataComponents.DATA_COMPONENT_TYPES.register(eventBus);
     }
 
     private void setup(final FMLCommonSetupEvent event) {
         event.enqueueWork(() -> {
-            ModNetwork.registerNetworkChannel();
             ModVanillaCompat.setup();
             BasinContent.register();
         });
     }
 
     private void doClientStuff(final FMLClientSetupEvent event) {
-        //Screens
-        MenuScreens.register(ModMenuTypes.PIZZA.get(), ScreenPizza::new);
-        MenuScreens.register(ModMenuTypes.PIZZA_STATION.get(), ScreenPizzaStation::new);
-
         //BlockEntityRenderers
         BlockEntityRenderers.register(ModBlockEntityTypes.BASIN.get(), BasinRenderer::new);
         BlockEntityRenderers.register(ModBlockEntityTypes.PIZZA.get(), PizzaRenderer::new);
@@ -74,10 +62,6 @@ public class PizzaDelight {
         ItemBlockRenderTypes.setRenderLayer(ModBlocks.PIZZA.get(), RenderType.cutoutMipped());
         ItemBlockRenderTypes.setRenderLayer(ModBlocks.RAW_PIZZA.get(), RenderType.cutoutMipped());
         ItemBlockRenderTypes.setRenderLayer(ModBlocks.BASIN.get(), RenderType.cutoutMipped());
-
-        //Crops
-        //ItemBlockRenderTypes.setRenderLayer(ModBlocks.PEPPER_CROP.get(), RenderType.cutout());
-        //ItemBlockRenderTypes.setRenderLayer(ModBlocks.WILD_PEPPERS.get(), RenderType.cutout());
     }
 
     private void onFinish(final FMLLoadCompleteEvent event) {

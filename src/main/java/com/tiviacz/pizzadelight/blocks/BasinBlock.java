@@ -3,7 +3,7 @@ package com.tiviacz.pizzadelight.blocks;
 import com.tiviacz.pizzadelight.blockentity.BasinBlockEntity;
 import com.tiviacz.pizzadelight.blockentity.content.BasinContent;
 import com.tiviacz.pizzadelight.init.ModBlockEntityTypes;
-import com.tiviacz.pizzadelight.init.ModItems;
+import com.tiviacz.pizzadelight.init.ModBlocks;
 import com.tiviacz.pizzadelight.tags.ModTags;
 import com.tiviacz.pizzadelight.util.Utils;
 import net.minecraft.core.BlockPos;
@@ -11,9 +11,9 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -26,6 +26,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.neoforged.neoforge.common.Tags;
 
 import javax.annotation.Nullable;
 
@@ -42,32 +43,35 @@ public class BasinBlock extends Block implements EntityBlock {
     }
 
     @Override
-    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand handIn, BlockHitResult hit) {
-        ItemStack stack = player.getItemInHand(handIn);
+    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
         if(level.getBlockEntity(pos) instanceof BasinBlockEntity blockEntity) {
-            if(stack.is(Items.MILK_BUCKET) && blockEntity.getBasinContent() == BasinContent.AIR) {
-                return blockEntity.addMilk(level, player, handIn);
+            if(stack.is(Tags.Items.BUCKETS_MILK) && blockEntity.getBasinContent() == BasinContent.AIR) {
+                return blockEntity.addMilk(level, player, hand);
             }
             if(stack.is(ModTags.FERMENTING_ITEMS_TAG) && blockEntity.getBasinContent() == BasinContent.MILK) {
                 return blockEntity.useFermetingItem(stack, level, player);
             }
-            if(stack.is(Items.BUCKET) && blockEntity.getBasinContent() == BasinContent.MILK) {
+            if(stack.is(Tags.Items.BUCKETS_EMPTY) && blockEntity.getBasinContent() == BasinContent.MILK) {
                 return blockEntity.removeMilk(stack, level, player);
             }
+        }
+        return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+    }
 
-            if(level.isClientSide) {
-                if(blockEntity.removeCheese(level, player).consumesAction()) {
-                    return InteractionResult.SUCCESS;
-                }
-
-                if(player.getItemInHand(InteractionHand.MAIN_HAND).isEmpty()) {
-                    return InteractionResult.CONSUME;
-                }
+    @Override
+    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
+        BasinBlockEntity blockEntity = (BasinBlockEntity)level.getBlockEntity(pos);
+        if(level.isClientSide) {
+            if(blockEntity.removeCheese(level, player).consumesAction()) {
+                return InteractionResult.SUCCESS;
             }
 
-            return blockEntity.removeCheese(level, player);
+            if(player.getItemInHand(InteractionHand.MAIN_HAND).isEmpty()) {
+                return InteractionResult.CONSUME;
+            }
         }
-        return InteractionResult.PASS;
+
+        return blockEntity.removeCheese(level, player);
     }
 
     @Override
@@ -75,7 +79,7 @@ public class BasinBlock extends Block implements EntityBlock {
         if(state.getBlock() != newState.getBlock()) {
             if(world.getBlockEntity(pos) instanceof BasinBlockEntity blockEntity) {
                 if(blockEntity.getBasinContent() == BasinContent.CHEESE) {
-                    Containers.dropItemStack(world, pos.getX(), pos.getY(), pos.getZ(), ModItems.CHEESE_BLOCK.get().getDefaultInstance());
+                    Containers.dropItemStack(world, pos.getX(), pos.getY(), pos.getZ(), ModBlocks.CHEESE_BLOCK.toStack());
                 }
                 world.updateNeighbourForOutputSignal(pos, this);
             }

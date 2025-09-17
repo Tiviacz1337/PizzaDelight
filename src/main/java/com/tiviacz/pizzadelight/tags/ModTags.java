@@ -36,6 +36,6 @@ public class ModTags {
     public static final TagKey<Item> HOT_SAUCE = TagKey.create(Registries.ITEM, createResourceLocation("ingredients/sauces/hot_sauce_layer"));
 
     public static ResourceLocation createResourceLocation(String tagName) {
-        return new ResourceLocation(PizzaDelight.MODID, tagName);
+        return ResourceLocation.fromNamespaceAndPath(PizzaDelight.MODID, tagName);
     }
 }

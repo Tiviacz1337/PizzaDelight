@@ -5,15 +5,24 @@ import com.google.common.collect.Maps;
 import java.util.Map;
 
 public class BasinContentRegistry {
-    public static Map<String, BasinContent> contentsRegistry = Maps.newHashMap();
+    public static final BasinContentRegistry REGISTRY = new BasinContentRegistry();
 
-    public static BasinContent register(BasinContent content) {
-        contentsRegistry.putIfAbsent(content.name(), content);
+    public Map<String, BasinContent> contentsRegistry = Maps.newHashMap();
 
-        return contentsRegistry.get(content.name());
+    public BasinContentRegistry() {
     }
 
-    public static BasinContent fromString(String name) {
+    public Map<String, BasinContent> getContentsRegistry() {
+        return this.contentsRegistry;
+    }
+
+    public BasinContent register(BasinContent content) {
+        this.contentsRegistry.putIfAbsent(content.name(), content);
+
+        return this.contentsRegistry.get(content.name());
+    }
+
+    public BasinContent fromString(String name) {
         if(contentsRegistry.containsKey(name)) {
             return contentsRegistry.get(name);
         }

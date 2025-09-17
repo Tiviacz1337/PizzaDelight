@@ -2,24 +2,34 @@ package com.tiviacz.pizzadelight.handlers;
 
 import com.tiviacz.pizzadelight.PizzaDelight;
 import com.tiviacz.pizzadelight.blockentity.PizzaBlockEntity;
+import com.tiviacz.pizzadelight.components.PizzaIngredients;
 import com.tiviacz.pizzadelight.init.ModBlocks;
-import com.tiviacz.pizzadelight.util.NBTUtils;
+import com.tiviacz.pizzadelight.init.ModDataComponents;
+import com.tiviacz.pizzadelight.init.ModNetwork;
 import com.tiviacz.pizzadelight.util.RenderUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.color.block.BlockColors;
 import net.minecraft.client.color.item.ItemColors;
-import net.minecraft.world.item.PotionItem;
-import net.minecraft.world.item.alchemy.PotionUtils;
+import net.minecraft.core.NonNullList;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.event.RegisterColorHandlersEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.items.ItemStackHandler;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
+import net.neoforged.neoforge.items.ItemStackHandler;
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 
-@Mod.EventBusSubscriber(modid = PizzaDelight.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = PizzaDelight.MODID, bus = EventBusSubscriber.Bus.MOD)
 public class ModEventHandler {
+    @SubscribeEvent
+    public static void registerPayloadHandler(RegisterPayloadHandlersEvent event) {
+        ModNetwork.register(event.registrar(PizzaDelight.MODID));
+    }
+
     @OnlyIn(Dist.CLIENT)
     @SubscribeEvent
     public static void registerBlockItemColors(RegisterColorHandlersEvent.Item event) {
@@ -39,19 +49,23 @@ public class ModEventHandler {
                 }
             }
             int color = RenderUtils.getDominantColor(Minecraft.getInstance().getItemRenderer().getItemModelShaper().getItemModel(handler.getStackInSlot(tintIndex)).getParticleIcon(), isRaw);
-            if(handler.getStackInSlot(tintIndex).getItem() instanceof PotionItem)
-                color = PotionUtils.getColor(handler.getStackInSlot(tintIndex));
+            if(handler.getStackInSlot(tintIndex).has(DataComponents.POTION_CONTENTS)) {
+                PotionContents contents = handler.getStackInSlot(tintIndex).getOrDefault(DataComponents.POTION_CONTENTS, PotionContents.EMPTY);
+                color = contents.getColor();
+            }
             if(handler.getStackInSlot(tintIndex).isEmpty()) return 14858625;
             return color;
         }, ModBlocks.RAW_PIZZA.get(), ModBlocks.PIZZA.get());
 
         itemColors.register((stack, tintIndex) ->
         {
-            ItemStackHandler handler = NBTUtils.createHandlerFromStack(stack, 12);
-            int color = RenderUtils.getDominantColor(Minecraft.getInstance().getItemRenderer().getItemModelShaper().getItemModel(handler.getStackInSlot(tintIndex)).getParticleIcon(), stack.getItem() == ModBlocks.RAW_PIZZA.get().asItem());
-            if(handler.getStackInSlot(tintIndex).getItem() instanceof PotionItem)
-                color = PotionUtils.getColor(handler.getStackInSlot(tintIndex));
-            if(handler.getStackInSlot(tintIndex).isEmpty()) return 14858625;
+            NonNullList<ItemStack> ingredients = stack.getOrDefault(ModDataComponents.PIZZA_INGREDIENTS, PizzaIngredients.EMPTY).getIngredients();
+            int color = RenderUtils.getDominantColor(Minecraft.getInstance().getItemRenderer().getItemModelShaper().getItemModel(ingredients.get(tintIndex)).getParticleIcon(), stack.getItem() == ModBlocks.RAW_PIZZA.get().asItem());
+            if(ingredients.get(tintIndex).has(DataComponents.POTION_CONTENTS)) {
+                PotionContents contents = ingredients.get(tintIndex).getOrDefault(DataComponents.POTION_CONTENTS, PotionContents.EMPTY);
+                color = contents.getColor();
+            }
+            if(ingredients.get(tintIndex).isEmpty()) return 14858625;
             return color;
         }, ModBlocks.RAW_PIZZA.get(), ModBlocks.PIZZA.get());
     }

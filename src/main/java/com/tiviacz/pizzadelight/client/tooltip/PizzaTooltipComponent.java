@@ -1,28 +1,16 @@
 package com.tiviacz.pizzadelight.client.tooltip;
 
-import com.tiviacz.pizzadelight.util.NBTUtils;
-import net.minecraft.core.NonNullList;
+import com.tiviacz.pizzadelight.components.PizzaIngredients;
+import com.tiviacz.pizzadelight.init.ModDataComponents;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.items.ItemStackHandler;
+
+import java.util.List;
 
 public class PizzaTooltipComponent implements TooltipComponent {
-    protected ItemStackHandler inventory = new ItemStackHandler(10);
-    protected ItemStack stack;
+    protected List<ItemStack> ingredients;
 
     public PizzaTooltipComponent(ItemStack stack) {
-        this.stack = stack;
-        NBTUtils.loadInventoryFromStack(stack, inventory);
-    }
-
-    public NonNullList<ItemStack> getIngredients() {
-        NonNullList<ItemStack> nonNullList = NonNullList.create();
-
-        for(int i = 0; i < inventory.getSlots() - 1; i++) {
-            if(!inventory.getStackInSlot(i).isEmpty()) {
-                nonNullList.add(inventory.getStackInSlot(i));
-            }
-        }
-        return nonNullList;
+        this.ingredients = stack.getOrDefault(ModDataComponents.PIZZA_INGREDIENTS, PizzaIngredients.EMPTY).getIngredients();
     }
 }

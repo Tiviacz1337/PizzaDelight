@@ -12,6 +12,7 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.CyclingSlotBackground;
 import net.minecraft.client.gui.screens.inventory.MenuAccess;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
@@ -19,8 +20,9 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerListener;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,10 +30,11 @@ import java.util.Optional;
 
 @OnlyIn(Dist.CLIENT)
 public class ScreenPizzaStation extends AbstractContainerScreen<PizzaStationMenu> implements MenuAccess<PizzaStationMenu>, ContainerListener {
-    public static final ResourceLocation SCREEN_PIZZA_STATION = new ResourceLocation(PizzaDelight.MODID, "textures/gui/pizza_station.png");
-    private static final ResourceLocation EMPTY_SLOT_SAUCE = new ResourceLocation(PizzaDelight.MODID, "item/empty_slot_sauce");
-    private static final ResourceLocation EMPTY_SLOT_POTION = new ResourceLocation(PizzaDelight.MODID, "item/empty_slot_potion");
-    private static final ResourceLocation EMPTY_SLOT_RAW_PIZZA = new ResourceLocation(PizzaDelight.MODID, "item/empty_slot_raw_pizza");
+    public static final ResourceLocation SCREEN_PIZZA_STATION = ResourceLocation.fromNamespaceAndPath(PizzaDelight.MODID, "textures/gui/pizza_station.png");
+    private static final ResourceLocation EMPTY_SLOT_SAUCE = ResourceLocation.fromNamespaceAndPath(PizzaDelight.MODID, "item/empty_slot_sauce");
+    private static final ResourceLocation EMPTY_SLOT_POTION = ResourceLocation.fromNamespaceAndPath(PizzaDelight.MODID, "item/empty_slot_potion");
+    //private static final ResourceLocation EMPTY_SLOT_DOUGH = new ResourceLocation(PizzaDelight.MODID, "item/empty_slot_dough");
+    private static final ResourceLocation EMPTY_SLOT_RAW_PIZZA = ResourceLocation.fromNamespaceAndPath(PizzaDelight.MODID, "item/empty_slot_raw_pizza");
     public static final List<ResourceLocation> SAUCES = List.of(EMPTY_SLOT_SAUCE, EMPTY_SLOT_POTION);
     private static final List<ResourceLocation> DOUGH = List.of(EMPTY_SLOT_RAW_PIZZA);
     private final PizzaStationBlockEntity blockEntity;
@@ -60,7 +63,7 @@ public class ScreenPizzaStation extends AbstractContainerScreen<PizzaStationMenu
     @Override
     public void containerTick() {
         super.containerTick();
-        this.name.tick();
+        //this.name.tick(); //#TODO check
         this.sauceIcon.tick(SAUCES);
         this.doughIcon.tick(DOUGH);
     }
@@ -90,7 +93,7 @@ public class ScreenPizzaStation extends AbstractContainerScreen<PizzaStationMenu
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
-        this.renderBackground(guiGraphics);
+        this.renderBackground(guiGraphics, mouseX, mouseY, partialTicks);
         super.render(guiGraphics, mouseX, mouseY, partialTicks);
         RenderSystem.disableBlend();
         this.renderFg(guiGraphics, mouseX, mouseY, partialTicks);
@@ -138,14 +141,16 @@ public class ScreenPizzaStation extends AbstractContainerScreen<PizzaStationMenu
     }
 
     private void onNameChanged(String name) {
-        if(!name.isEmpty()) {
+        Slot slot = this.menu.getSlot(0);
+        if(slot.hasItem()) {
             String s = name;
-            Slot slot = this.menu.getSlot(0);
-            if(slot != null && slot.hasItem() && !slot.getItem().hasCustomHoverName() && name.equals(slot.getItem().getHoverName().getString())) {
+            if(!slot.getItem().has(DataComponents.CUSTOM_NAME) && name.equals(slot.getItem().getHoverName().getString())) {
                 s = "";
             }
-            this.menu.setItemName(s);
-            PizzaDelight.NETWORK.sendToServer(new ServerboundRenamePizzaPacket(s));
+
+            if(this.menu.setItemName(s)) {
+                PacketDistributor.sendToServer(new ServerboundRenamePizzaPacket(s));
+            }
         }
     }
 
@@ -166,6 +171,6 @@ public class ScreenPizzaStation extends AbstractContainerScreen<PizzaStationMenu
 
     @Override
     public void dataChanged(AbstractContainerMenu pContainerMenu, int pDataSlotIndex, int pValue) {
-        this.slotChanged(pContainerMenu, 0, pContainerMenu.getSlot(0).getItem());
+        //this.slotChanged(pContainerMenu, 0, pContainerMenu.getSlot(0).getItem());
     }
 }

@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "  C",
+    " X ",
+    "X  "
+  ],
+  "key": {
+    "C": {
+      "tag": "minecraft:stone_tool_materials"
+    },
+    "X": {
+      "tag": "c:rods/wooden"
+    }
+  },
+  "result": {
+    "count": 1,
+    "id": "pizzadelight:stone_pizza_peel"
+  }
+}

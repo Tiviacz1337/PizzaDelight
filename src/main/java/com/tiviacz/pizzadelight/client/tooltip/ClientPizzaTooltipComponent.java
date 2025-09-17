@@ -4,19 +4,20 @@ import com.tiviacz.pizzadelight.util.Utils;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
-import net.minecraft.core.NonNullList;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+
+import java.util.List;
 
 @OnlyIn(Dist.CLIENT)
 public class ClientPizzaTooltipComponent implements ClientTooltipComponent {
-    public static final ResourceLocation TEXTURE_LOCATION = new ResourceLocation("textures/gui/container/bundle.png");
-    private final NonNullList<ItemStack> items;
+    private static final ResourceLocation BACKGROUND_SPRITE = ResourceLocation.withDefaultNamespace("container/bundle/background");
+    private final List<ItemStack> items;
 
     public ClientPizzaTooltipComponent(PizzaTooltipComponent pizzaTooltip) {
-        this.items = pizzaTooltip.getIngredients();
+        this.items = pizzaTooltip.ingredients;
     }
 
     @Override
@@ -37,6 +38,7 @@ public class ClientPizzaTooltipComponent implements ClientTooltipComponent {
 
         int i = this.gridSizeX();
         int j = this.gridSizeY();
+        pGuiGraphics.blitSprite(BACKGROUND_SPRITE, pX, pY, this.gridSizeX() * 18 + 2, this.gridSizeY() * 20 + 2);
         int k = 0;
 
         for(int l = 0; l < j; ++l) {
@@ -46,41 +48,22 @@ public class ClientPizzaTooltipComponent implements ClientTooltipComponent {
                 this.renderSlot(j1, k1, k++, pGuiGraphics, pFont);
             }
         }
-
-        this.drawBorder(pX, pY, i, j, pGuiGraphics);
     }
 
-    private void renderSlot(int pX, int pY, int pItemIndex, GuiGraphics pGuiGraphics, Font pFont) {
-        if(pItemIndex >= this.items.size()) {
-            this.blit(pGuiGraphics, pX, pY, Texture.BLOCKED_SLOT);
+    private void renderSlot(int x, int y, int itemIndex, GuiGraphics guiGraphics, Font font) {
+        if(itemIndex >= this.items.size()) {
+            this.blit(guiGraphics, x, y, Texture.BLOCKED_SLOT);
         } else {
-            ItemStack itemstack = this.items.get(pItemIndex);
-            this.blit(pGuiGraphics, pX, pY, ClientPizzaTooltipComponent.Texture.SLOT);
-            pGuiGraphics.renderItem(itemstack, pX + 1, pY + 1, pItemIndex);
-            pGuiGraphics.renderItemDecorations(pFont, itemstack, pX + 1, pY + 1);
+            ItemStack itemstack = this.items.get(itemIndex);
+            this.blit(guiGraphics, x, y, ClientPizzaTooltipComponent.Texture.SLOT);
+            guiGraphics.renderItem(itemstack, x + 1, y + 1, itemIndex);
+            guiGraphics.renderItemDecorations(font, itemstack, x + 1, y + 1);
         }
+
     }
 
-    private void drawBorder(int pX, int pY, int pSlotWidth, int pSlotHeight, GuiGraphics pGuiGraphics) {
-        this.blit(pGuiGraphics, pX, pY, ClientPizzaTooltipComponent.Texture.BORDER_CORNER_TOP);
-        this.blit(pGuiGraphics, pX + pSlotWidth * 18 + 1, pY, ClientPizzaTooltipComponent.Texture.BORDER_CORNER_TOP);
-
-        for(int i = 0; i < pSlotWidth; ++i) {
-            this.blit(pGuiGraphics, pX + 1 + i * 18, pY, ClientPizzaTooltipComponent.Texture.BORDER_HORIZONTAL_TOP);
-            this.blit(pGuiGraphics, pX + 1 + i * 18, pY + pSlotHeight * 20, ClientPizzaTooltipComponent.Texture.BORDER_HORIZONTAL_BOTTOM);
-        }
-
-        for(int j = 0; j < pSlotHeight; ++j) {
-            this.blit(pGuiGraphics, pX, pY + j * 20 + 1, ClientPizzaTooltipComponent.Texture.BORDER_VERTICAL);
-            this.blit(pGuiGraphics, pX + pSlotWidth * 18 + 1, pY + j * 20 + 1, ClientPizzaTooltipComponent.Texture.BORDER_VERTICAL);
-        }
-
-        this.blit(pGuiGraphics, pX, pY + pSlotHeight * 20, ClientPizzaTooltipComponent.Texture.BORDER_CORNER_BOTTOM);
-        this.blit(pGuiGraphics, pX + pSlotWidth * 18 + 1, pY + pSlotHeight * 20, ClientPizzaTooltipComponent.Texture.BORDER_CORNER_BOTTOM);
-    }
-
-    private void blit(GuiGraphics pGuiGraphics, int pX, int pY, ClientPizzaTooltipComponent.Texture pTexture) {
-        pGuiGraphics.blit(TEXTURE_LOCATION, pX, pY, 0, (float)pTexture.x, (float)pTexture.y, pTexture.w, pTexture.h, 128, 128);
+    private void blit(GuiGraphics guiGraphics, int x, int y, ClientPizzaTooltipComponent.Texture texture) {
+        guiGraphics.blitSprite(texture.sprite, x, y, 0, texture.w, texture.h);
     }
 
     private int gridSizeX() {
@@ -95,24 +78,17 @@ public class ClientPizzaTooltipComponent implements ClientTooltipComponent {
 
     @OnlyIn(Dist.CLIENT)
     enum Texture {
-        SLOT(0, 0, 18, 20),
-        BLOCKED_SLOT(0, 40, 18, 20),
-        BORDER_VERTICAL(0, 18, 1, 20),
-        BORDER_HORIZONTAL_TOP(0, 20, 18, 1),
-        BORDER_HORIZONTAL_BOTTOM(0, 60, 18, 1),
-        BORDER_CORNER_TOP(0, 20, 1, 1),
-        BORDER_CORNER_BOTTOM(0, 60, 1, 1);
+        BLOCKED_SLOT(ResourceLocation.withDefaultNamespace("container/bundle/blocked_slot"), 18, 20),
+        SLOT(ResourceLocation.withDefaultNamespace("container/bundle/slot"), 18, 20);
 
-        public final int x;
-        public final int y;
+        public final ResourceLocation sprite;
         public final int w;
         public final int h;
 
-        Texture(int pX, int pY, int pW, int pH) {
-            this.x = pX;
-            this.y = pY;
-            this.w = pW;
-            this.h = pH;
+        Texture(ResourceLocation sprite, int w, int h) {
+            this.sprite = sprite;
+            this.w = w;
+            this.h = h;
         }
     }
 }

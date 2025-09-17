@@ -1,24 +1,25 @@
 package com.tiviacz.pizzadelight.items;
 
-import com.mojang.datafixers.util.Pair;
-import com.tiviacz.pizzadelight.util.NBTUtils;
-import com.tiviacz.pizzadelight.util.TextUtils;
+import com.tiviacz.pizzadelight.client.tooltip.PizzaTooltipComponent;
+import com.tiviacz.pizzadelight.common.PizzaBlockCalculator;
+import com.tiviacz.pizzadelight.init.ModDataComponents;
+import com.tiviacz.pizzadelight.util.PizzaFoodBuilder;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.food.FoodProperties;
+import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.PotionItem;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.item.alchemy.PotionUtils;
-import net.minecraft.world.level.Level;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.items.ItemStackHandler;
+import org.jetbrains.annotations.Nullable;
+import vectorwing.farmersdelight.common.utility.TextUtils;
 
-import javax.annotation.Nullable;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class PizzaSliceItem extends Item {
     public PizzaSliceItem(Properties properties) {
@@ -27,47 +28,39 @@ public class PizzaSliceItem extends Item {
 
     @Override
     @OnlyIn(Dist.CLIENT)
-    public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flagIn) {
-        FoodProperties foodProperties = this.getFoodProperties(stack, null);
-        if(foodProperties != null && !foodProperties.getEffects().isEmpty()) {
-            TextUtils.addFoodEffectTooltip(stack, tooltip, 1.0F);
+    public void appendHoverText(ItemStack pStack, Item.TooltipContext pContext, List<Component> pTooltipComponents, TooltipFlag pTooltipFlag) {
+        if(pStack.has(DataComponents.FOOD) && !getFoodProperties(pStack, null).effects().isEmpty()) {
+            TextUtils.addFoodEffectTooltip(pStack, pTooltipComponents::add, 1.0F, pContext.tickRate());
         }
     }
 
     @Override
-    public FoodProperties getFoodProperties(ItemStack stack, @Nullable LivingEntity livingEntity) {
-        FoodProperties.Builder builder = new FoodProperties.Builder();
-        builder.nutrition(NBTUtils.getHunger(stack));
-        builder.saturationMod(NBTUtils.getSaturation(stack));
-        for(Pair<MobEffectInstance, Float> effect : NBTUtils.getEffects(stack)) {
-            builder.effect(effect::getFirst, effect.getSecond());
-        }
-        List<ItemStack> foods = new ArrayList<>(NBTUtils.getIngredients(stack));
-
-        for(ItemStack food : foods) {
-            FoodProperties props = food.getFoodProperties(livingEntity);
-
-            if(props != null) {
-                if(props.isMeat()) {
-                    builder.meat();
-                }
-
-                for(Pair<MobEffectInstance, Float> effect : props.getEffects()) {
-                    builder.effect(effect::getFirst, effect.getSecond());
-                }
-            }
-
-            if(food.getItem() instanceof PotionItem) {
-                for(MobEffectInstance mobeffectinstance : PotionUtils.getMobEffects(food)) {
-                    builder.effect(() -> new MobEffectInstance(mobeffectinstance), 1.0F);
-                }
-            }
-        }
-        return builder.alwaysEat().build();
+    public Optional<TooltipComponent> getTooltipImage(ItemStack pStack) {
+        return Optional.of(new PizzaTooltipComponent(pStack));
     }
 
+    // Add effect on the fly, can't stack items otherwise because PossibleEffect is always different object
     @Override
-    public boolean isEdible() {
-        return true;
+    public FoodProperties getFoodProperties(ItemStack stack, @Nullable LivingEntity entity) {
+        FoodProperties foodProperties = stack.get(DataComponents.FOOD);
+        if(foodProperties == null) {
+            return null;
+        }
+        if(!foodProperties.canAlwaysEat()) {
+            return foodProperties;
+        } else { //Add effects
+            PizzaFoodBuilder newProps = new PizzaFoodBuilder().nutrition(foodProperties.nutrition()).saturationModifier(foodProperties.saturation()).alwaysEdible();
+
+            if(stack.has(ModDataComponents.PIZZA_INGREDIENTS)) {
+                PizzaBlockCalculator calculator = new PizzaBlockCalculator(new ItemStackHandler(stack.get(ModDataComponents.PIZZA_INGREDIENTS).getIngredients()));
+                List<FoodProperties.PossibleEffect> effects = calculator.findEffects();
+
+                for(FoodProperties.PossibleEffect effect : effects) {
+                    newProps.effect(effect.effectSupplier(), effect.probability());
+                }
+            }
+
+            return newProps.build();
+        }
     }
 }

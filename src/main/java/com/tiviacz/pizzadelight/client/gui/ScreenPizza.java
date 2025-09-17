@@ -11,8 +11,8 @@ import net.minecraft.client.gui.screens.inventory.MenuAccess;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -21,7 +21,7 @@ import java.util.Optional;
 
 @OnlyIn(Dist.CLIENT)
 public class ScreenPizza extends AbstractContainerScreen<PizzaMenu> implements MenuAccess<PizzaMenu> {
-    public static final ResourceLocation SCREEN_PIZZA = new ResourceLocation(PizzaDelight.MODID, "textures/gui/pizza.png");
+    public static final ResourceLocation SCREEN_PIZZA = ResourceLocation.fromNamespaceAndPath(PizzaDelight.MODID, "textures/gui/pizza.png");
     private final ScreenImage HUNGER_INFO = new ScreenImage(126, 40, 13, 13);
     private final PizzaBlockEntity blockEntity;
 
@@ -73,7 +73,7 @@ public class ScreenPizza extends AbstractContainerScreen<PizzaMenu> implements M
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
-        this.renderBackground(guiGraphics);
+        this.renderBackground(guiGraphics, mouseX, mouseY, partialTicks);
         super.render(guiGraphics, mouseX, mouseY, partialTicks);
         this.renderTooltip(guiGraphics, mouseX, mouseY);
 

@@ -1,0 +1,19 @@
+{
+  "type": "farmersdelight:cutting",
+  "ingredients": [
+    {
+      "item": "pizzadelight:cheese_block"
+    }
+  ],
+  "result": [
+    {
+      "item": {
+        "count": 3,
+        "id": "pizzadelight:cheese"
+      }
+    }
+  ],
+  "tool": {
+    "tag": "c:tools/knife"
+  }
+}

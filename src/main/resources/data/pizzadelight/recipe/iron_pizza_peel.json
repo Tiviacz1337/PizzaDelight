@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "  C",
+    " X ",
+    "X  "
+  ],
+  "key": {
+    "C": {
+      "tag": "c:ingots/iron"
+    },
+    "X": {
+      "tag": "c:rods/wooden"
+    }
+  },
+  "result": {
+    "count": 1,
+    "id": "pizzadelight:iron_pizza_peel"
+  }
+}

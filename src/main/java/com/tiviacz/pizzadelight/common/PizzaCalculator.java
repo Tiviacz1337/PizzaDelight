@@ -1,13 +1,14 @@
 package com.tiviacz.pizzadelight.common;
 
-import com.mojang.datafixers.util.Pair;
+import com.tiviacz.pizzadelight.components.PizzaIngredients;
+import com.tiviacz.pizzadelight.init.ModDataComponents;
 import com.tiviacz.pizzadelight.tags.ModTags;
-import com.tiviacz.pizzadelight.util.NBTUtils;
 import net.minecraft.core.NonNullList;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.items.ItemStackHandler;
+import net.neoforged.neoforge.items.ItemStackHandler;
 import vectorwing.farmersdelight.common.registry.ModEffects;
 
 import javax.annotation.Nullable;
@@ -20,8 +21,9 @@ public class PizzaCalculator {
     protected ItemStackHandler ingredients;
 
     protected NonNullList<ItemStack> processedFoods = NonNullList.create();
-    protected List<Pair<MobEffectInstance, Float>> effects = new ArrayList<>();
+    protected List<FoodProperties.PossibleEffect> effects = new ArrayList<>();
 
+    //Default
     protected int uniqueness = 0;
     protected int hunger = 4;
     protected float saturation = 0.6F;
@@ -36,7 +38,7 @@ public class PizzaCalculator {
         resetStats();
 
         ingredients.setStackInSlot(9, sauce);
-        NBTUtils.saveInventoryToStack(stack, this.ingredients);
+        stack.set(ModDataComponents.PIZZA_INGREDIENTS, PizzaIngredients.fromHandler(ingredients));
 
         return stack;
     }
@@ -52,19 +54,15 @@ public class PizzaCalculator {
 
         int allNutrition = (this.hunger + 3) / 4 * 4;
 
-        //FoodProperties.Builder foodProperties = new FoodProperties.Builder();
-        //foodProperties.nutrition(allNutrition / 4).saturationModifier(this.saturation);
-        NBTUtils.setHunger(stack, allNutrition / 4);
-        NBTUtils.setSaturation(stack, this.saturation);
+        FoodProperties.Builder foodProperties = new FoodProperties.Builder();
+        foodProperties.nutrition(allNutrition / 4).saturationModifier(this.saturation);
 
         if(getEffect() != null) {
-            NBTUtils.setEffects(stack, List.of(Pair.of(getEffect(), 1.0F)));
-            //foodProperties.effect(this::getEffect, 1.0F).alwaysEdible();
+            foodProperties.effect(this::getEffect, 1.0F).alwaysEdible();
         }
 
-        NBTUtils.saveInventoryToStack(stack, this.ingredients);
-        //stack.set(DataComponents.FOOD, foodProperties.build());
-        //stack.set(ModDataComponents.PIZZA_INGREDIENTS, PizzaIngredients.fromHandler(ingredients));
+        stack.set(DataComponents.FOOD, foodProperties.build());
+        stack.set(ModDataComponents.PIZZA_INGREDIENTS, PizzaIngredients.fromHandler(ingredients));
 
         return stack;
     }
@@ -74,40 +72,18 @@ public class PizzaCalculator {
 
         int pointer = this.uniqueness - 9;
 
-        if(pointer == 0) return new MobEffectInstance(ModEffects.NOURISHMENT.get(), 6000);
-        if(pointer >= -3 && pointer < 0) return new MobEffectInstance(ModEffects.NOURISHMENT.get(), 3600);
-        if(pointer >= -6 && pointer < -3) return new MobEffectInstance(ModEffects.COMFORT.get(), 1200);
+        if(pointer == 0) return new MobEffectInstance(ModEffects.NOURISHMENT, 6000);
+        if(pointer >= -3 && pointer < 0) return new MobEffectInstance(ModEffects.NOURISHMENT, 3600);
+        if(pointer >= -6 && pointer < -3) return new MobEffectInstance(ModEffects.COMFORT, 1200);
         else return null;
     }
 
-    public ItemStack getResultSliceStack(ItemStack stack) {
-        resetStats();
-        ingredients.setStackInSlot(9, sauce);
-
-        //Base
-        this.hunger += 7;
-
-        for(int i = 0; i < ingredients.getSlots(); i++) {
-            processFood(ingredients.getStackInSlot(i).copyWithCount(1));
-        }
-
-        NBTUtils.saveInventoryToStack(stack, this.ingredients);
-        NBTUtils.setUniqueness(stack, this.uniqueness);
-        NBTUtils.setHunger(stack, this.hunger / 6);
-        NBTUtils.setSaturation(stack, 0.6F);
-        if(getEffect() != null) {
-            NBTUtils.setEffects(stack, List.of(Pair.of(getEffect(), 1.0F)));
-        }
-
-        return stack;
-    }
-
     public void processFood(ItemStack stack) {
-        if(stack.getFoodProperties(null) == null) return;
+        if(!stack.has(DataComponents.FOOD)) return;
 
         FoodProperties food = stack.getItem().getFoodProperties(stack, null);
 
-        int nutrition = food.getNutrition();
+        int nutrition = food.nutrition();
 
         if(stack.is(ModTags.INGREDIENTS)) {
             nutrition += 2;
@@ -116,17 +92,17 @@ public class PizzaCalculator {
 
         this.hunger += nutrition;
 
-        if(!food.getEffects().isEmpty()) {
-            List<Pair<MobEffectInstance, Float>> foodEffects = food.getEffects();
+        if(!food.effects().isEmpty()) {
+            List<FoodProperties.PossibleEffect> foodEffects = food.effects();
 
-            for(Pair<MobEffectInstance, Float> possibleEffect : foodEffects) {
+            for(FoodProperties.PossibleEffect possibleEffect : foodEffects) {
                 if(!effects.contains(possibleEffect)) {
                     effects.add(possibleEffect);
                 }
             }
         }
 
-        if(processedFoods.stream().noneMatch(s -> ItemStack.isSameItemSameTags(s, stack))) {
+        if(processedFoods.stream().noneMatch(s -> ItemStack.isSameItemSameComponents(s, stack))) {
             this.uniqueness += 1;
         }
         processedFoods.add(stack);

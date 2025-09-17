@@ -1,49 +1,43 @@
 package com.tiviacz.pizzadelight.network;
 
+import com.tiviacz.pizzadelight.PizzaDelight;
 import com.tiviacz.pizzadelight.container.PizzaStationMenu;
-import net.minecraft.SharedConstants;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraftforge.network.NetworkEvent;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-import java.util.function.Supplier;
+public record ServerboundRenamePizzaPacket(String name) implements CustomPacketPayload {
+    public static final Type<ServerboundRenamePizzaPacket> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(PizzaDelight.MODID, "rename_pizza"));
 
-public class ServerboundRenamePizzaPacket {
-    private final String name;
+    public static final StreamCodec<RegistryFriendlyByteBuf, ServerboundRenamePizzaPacket> STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.STRING_UTF8, ServerboundRenamePizzaPacket::name,
+            ServerboundRenamePizzaPacket::new
+    );
 
-    public ServerboundRenamePizzaPacket(String name) {
-        this.name = name;
-    }
+    public static void handle(final ServerboundRenamePizzaPacket message, IPayloadContext ctx) {
+        ctx.enqueueWork(() -> {
+            Player player = ctx.player();
 
-    public static ServerboundRenamePizzaPacket decode(final FriendlyByteBuf buffer) {
-        final String name = buffer.readUtf();
 
-        return new ServerboundRenamePizzaPacket(name);
-    }
-
-    public static void encode(final ServerboundRenamePizzaPacket message, final FriendlyByteBuf buffer) {
-        buffer.writeUtf(message.name);
-    }
-
-    public static void handle(final ServerboundRenamePizzaPacket message, final Supplier<NetworkEvent.Context> ctx) {
-        ctx.get().enqueueWork(() ->
-        {
-            final ServerPlayer serverPlayer = ctx.get().getSender();
-
-            AbstractContainerMenu menu = serverPlayer.containerMenu;
+            AbstractContainerMenu menu = player.containerMenu;
             if(menu instanceof PizzaStationMenu stationMenu) {
-                if(!stationMenu.stillValid(serverPlayer)) {
+                if(!stationMenu.stillValid(player)) {
+                    PizzaDelight.LOGGER.debug("Player {} interacted with invalid menu {}", player, stationMenu);
                     return;
                 }
 
-                String s = SharedConstants.filterText(message.name);
-                if(s.length() <= 50) {
-                    stationMenu.setItemName(s);
-                }
+                stationMenu.setItemName(message.name());
             }
         });
+    }
 
-        ctx.get().setPacketHandled(true);
+    @Override
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
     }
 }

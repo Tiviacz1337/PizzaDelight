@@ -89,15 +89,15 @@ public class PizzaLayers {
     public static final ResourceLocation HOT_SAUCE_ITEM_LAYER = createItem("hot_sauce");
 
     public static ResourceLocation createItem(String name) {
-        return new ResourceLocation(PizzaDelight.MODID, "item/layer/" + name);
+        return ResourceLocation.fromNamespaceAndPath(PizzaDelight.MODID, "item/layer/" + name);
     }
 
     public static ResourceLocation createBlock(String name) {
-        return new ResourceLocation(PizzaDelight.MODID, "block/layer/" + name);
+        return ResourceLocation.fromNamespaceAndPath(PizzaDelight.MODID, "block/layer/" + name);
     }
 
     public static ResourceLocation createRawBlock(String name) {
-        return new ResourceLocation(PizzaDelight.MODID, "block/layer/raw/" + name);
+        return ResourceLocation.fromNamespaceAndPath(PizzaDelight.MODID, "block/layer/raw/" + name);
     }
 
     public static Map<TagKey<Item>, ResourceLocation> getTagToLayer() {
@@ -189,7 +189,7 @@ public class PizzaLayers {
     }
 
     public static ResourceLocation createResourceLocation(String tagName) {
-        return new ResourceLocation(PizzaDelight.MODID, tagName);
+        return ResourceLocation.fromNamespaceAndPath(PizzaDelight.MODID, tagName);
     }
 
     public static final List<TagKey<Item>> VALID_TAGS = Arrays.asList
