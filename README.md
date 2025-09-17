@@ -2,7 +2,7 @@
 <p align="center"><img src="https://i.imgur.com/xhIfdnW.png" height="250" /></p>
 <p align="center"><a href="https://www.curseforge.com/minecraft/mc-mods/pizza-delight"><img src="https://cf.way2muchnoise.eu/short_1113260_downloads%20on%20Forge.svg?badge_style=flat" alt="Forge Curseforge Downloads"></a>
 <a href="https://discord.gg/f8Nnj5VuFj"><img src="https://img.shields.io/discord/724696823276503210?color=242629&label=&labelColor=5865F2&logo=discord&logoColor=FFFFFF&style=flat-square" alt="Discord"></a>
-<img src="https://img.shields.io/modrinth/dt/pizzadelight?logo=modrinth&label=&suffix=%20&style=flat-square&color=242629&labelColor=5ca424&logoColor=1c1c1c" alt="Modrinth"></p>
+<a href="https://modrinth.com/mod/pizzadelight"><img src="https://img.shields.io/modrinth/dt/pizzadelight?logo=modrinth&label=&suffix=%20&style=flat-square&color=242629&labelColor=5ca424&logoColor=1c1c1c" alt="Modrinth"></a></p>
 
 <p align="center"><a href="https://ko-fi.com/tiviacz1337"><img src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/donate/kofi-singular-alt_64h.png" alt="Kofi"></a></p>
 
