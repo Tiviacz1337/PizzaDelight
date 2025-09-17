@@ -48,7 +48,12 @@ public class PizzaStationResultSlot extends SlotItemHandler {
                     if(isPotion) {
                         container = new ItemStack(Items.GLASS_BOTTLE);
                     } else if(isSauce) {
-                        container = itemStack.get(DataComponents.FOOD).usingConvertsTo().get();
+                        var foodProperties = itemStack.get(DataComponents.FOOD);
+                        if(foodProperties != null) {
+                            if(foodProperties.usingConvertsTo().isPresent()) {
+                                container = foodProperties.usingConvertsTo().get();
+                            }
+                        }
                     }
                 }
 
