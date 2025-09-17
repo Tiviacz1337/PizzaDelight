@@ -2,7 +2,8 @@
   "parent": "pizzadelight:root",
   "display": {
     "icon": {
-      "item": "pizzadelight:chef_hat"
+      "id": "pizzadelight:chef_hat",
+      "count": 1
     },
     "title": {
       "translate": "advancements.pizzadelight.chef.title"

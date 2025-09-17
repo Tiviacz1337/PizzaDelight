@@ -2,7 +2,8 @@
   "parent": "pizzadelight:raw_pizza",
   "display": {
     "icon": {
-      "item": "pizzadelight:pizza"
+      "id": "pizzadelight:pizza",
+      "count": 1
     },
     "title": {
       "translate": "advancements.pizzadelight.pizza.title"

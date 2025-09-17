@@ -2,7 +2,8 @@
   "parent": "pizzadelight:cheese_block",
   "display": {
     "icon": {
-      "item": "pizzadelight:cheese"
+      "id": "pizzadelight:cheese",
+      "count": 1
     },
     "title": {
       "translate": "advancements.pizzadelight.cheese.title"

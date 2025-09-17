@@ -2,7 +2,8 @@
   "parent": "pizzadelight:root",
   "display": {
     "icon": {
-      "item": "pizzadelight:pizza_station"
+      "id": "pizzadelight:pizza_station",
+      "count": 1
     },
     "title": {
       "translate": "advancements.pizzadelight.pizza_station.title"

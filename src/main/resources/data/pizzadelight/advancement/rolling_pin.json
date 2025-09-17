@@ -2,7 +2,8 @@
   "parent": "pizzadelight:pizza_station",
   "display": {
     "icon": {
-      "item": "pizzadelight:rolling_pin"
+      "id": "pizzadelight:rolling_pin",
+      "count": 1
     },
     "title": {
       "translate": "advancements.pizzadelight.rolling_pin.title"

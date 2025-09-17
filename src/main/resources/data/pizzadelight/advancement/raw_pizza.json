@@ -2,7 +2,8 @@
   "parent": "pizzadelight:rolling_pin",
   "display": {
     "icon": {
-      "item": "pizzadelight:raw_pizza"
+      "id": "pizzadelight:raw_pizza",
+      "count": 1
     },
     "title": {
       "translate": "advancements.pizzadelight.raw_pizza.title"

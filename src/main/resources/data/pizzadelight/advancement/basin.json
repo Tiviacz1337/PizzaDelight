@@ -2,7 +2,8 @@
   "parent": "pizzadelight:root",
   "display": {
     "icon": {
-      "item": "pizzadelight:basin"
+      "id": "pizzadelight:basin",
+      "count": 1
     },
     "title": {
       "translate": "advancements.pizzadelight.basin.title"

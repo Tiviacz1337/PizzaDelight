@@ -1,7 +1,8 @@
 {
   "display": {
     "icon": {
-      "item": "pizzadelight:pizza_slice"
+      "id": "pizzadelight:pizza_slice",
+      "count": 1
     },
     "title": {
       "translate": "advancements.pizzadelight.root.title"

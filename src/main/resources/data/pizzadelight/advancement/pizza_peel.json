@@ -2,7 +2,8 @@
   "parent": "pizzadelight:raw_pizza",
   "display": {
     "icon": {
-      "item": "pizzadelight:iron_pizza_peel"
+      "id": "pizzadelight:iron_pizza_peel",
+      "count": 1
     },
     "title": {
       "translate": "advancements.pizzadelight.pizza_peel.title"
