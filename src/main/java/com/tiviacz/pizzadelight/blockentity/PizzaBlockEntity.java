@@ -17,12 +17,14 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.MenuProvider;
-import net.minecraft.world.Nameable;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.*;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.PotionItem;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.client.model.data.ModelData;
@@ -42,7 +44,7 @@ public class PizzaBlockEntity extends BaseBlockEntity implements MenuProvider, N
     private Component customName = null;
     private int bakingTime = 0;
     private final int BASE_BAKING_TIME = 600;
-    private final int selectedSlot = 0;
+    private int selectedSlot = 0;
 
     private final LazyOptional<ItemStackHandler> inventoryCapability = LazyOptional.of(() -> this.inventory);
 
@@ -102,6 +104,93 @@ public class PizzaBlockEntity extends BaseBlockEntity implements MenuProvider, N
         NBTUtils.setEffects(stack, calculator.getEffects());
 
         return stack;
+    }
+
+    public void tryRemoving(Player player, ItemStack stack) {
+        if(!player.getInventory().add(stack)) {
+            Containers.dropItemStack(level, getBlockPos().getX(), getBlockPos().getY(), getBlockPos().getZ(), stack);
+        }
+    }
+
+    public InteractionResult manageIngredients(Player player, InteractionHand hand) {
+        if(hand == InteractionHand.MAIN_HAND) {
+            ItemStack stack = player.getItemInHand(hand);
+
+            if(isRaw() && !isBaking()) {
+                if(stack.isEmpty()) {
+                    //Get first not empty stack for Removal
+                    for(int i = inventory.getSlots() - 1; i >= 0; i--) {
+                        ItemStack nonEmpty = inventory.getStackInSlot(i);
+
+                        if(!nonEmpty.isEmpty()) {
+                            this.selectedSlot = i;
+                            break;
+                        }
+                    }
+
+                    //Remove stack from slot
+                    if(!inventory.getStackInSlot(this.selectedSlot).isEmpty()) {
+                        ItemStack modifiedCopy = inventory.getStackInSlot(this.selectedSlot).copy();
+
+                        if(this.selectedSlot != 9) {
+                            tryRemoving(player, modifiedCopy);
+                        }
+                        /*if(this.selectedSlot == 9) {
+                            if(modifiedCopy.is(ModTags.SAUCE)) {
+                                tryRemoving(player, modifiedCopy);
+                            }
+                        }*/
+                        level.playSound(player, getBlockPos(), SoundEvents.ITEM_PICKUP, SoundSource.BLOCKS, 0.7F, 0.8F + level.random.nextFloat());
+                        removeFromSlot(this.selectedSlot);
+                        this.setChanged();
+                        return InteractionResult.SUCCESS;
+                    }
+                } else {
+                    //Get first empty
+                    for(int i = 0; i < inventory.getSlots(); i++) {
+                        ItemStack empty = inventory.getStackInSlot(i);
+
+                        if(empty.isEmpty()) {
+                            this.selectedSlot = i;
+                            break;
+                        }
+                    }
+
+                    if(stack.getItem() instanceof PotionItem) {
+                        //if(!inventory.getStackInSlot(9).isEmpty()) {
+                        //    tryRemoving(player, inventory.getStackInSlot(9).copy());
+                            /*if(!player.getInventory().add(inventory.getStackInSlot(9))) {
+                                Containers.dropItemStack(level, getBlockPos().getX(), getBlockPos().getY(), getBlockPos().getZ(), inventory.getStackInSlot(9));
+                            }*/
+                        //}
+
+                        ItemStack modifiedCopy = stack.copy();
+                        modifiedCopy.setCount(1);
+                        inventory.setStackInSlot(9, modifiedCopy);
+
+                        stack.shrink(player.isCreative() ? 0 : 1);
+                        ItemStack container = PizzaMenu.getItemStack(modifiedCopy);
+                        tryRemoving(player, container);
+                        level.playSound(player, getBlockPos(), SoundEvents.AXOLOTL_SPLASH, SoundSource.BLOCKS, 0.7F, 0.8F + level.random.nextFloat());
+                        this.setChanged();
+                        return InteractionResult.SUCCESS;
+                    }
+
+                    //Insert to selected slot
+                    if(this.selectedSlot < 9 && canAddIngredient(stack, this.selectedSlot)) {
+                        ItemStack modifiedCopy = stack.copy();
+                        modifiedCopy.setCount(1);
+                        inventory.setStackInSlot(this.selectedSlot, modifiedCopy);
+
+                        stack.shrink(player.isCreative() ? 0 : 1);
+                        level.playSound(player, getBlockPos(), SoundEvents.ITEM_PICKUP, SoundSource.BLOCKS, 0.7F, 0.8F + level.random.nextFloat());
+                        this.setChanged();
+                        return InteractionResult.SUCCESS;
+                    }
+                }
+            }
+        }
+        return InteractionResult.FAIL;
     }
 
     // ======== BAKING ========

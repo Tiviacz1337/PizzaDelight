@@ -33,7 +33,7 @@ public class RawPizzaBlock extends AbstractPizzaBlock {
     @Override
     public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand handIn, BlockHitResult hit) {
         ItemStack heldStack = player.getItemInHand(handIn);
-        return heldStack.getItem() instanceof PizzaPeelItem ? this.pickUpPizza(level, pos, state, player.getDirection().getOpposite()) : InteractionResult.PASS;
+        return heldStack.getItem() instanceof PizzaPeelItem ? this.pickUpPizza(level, pos, state, player.getDirection().getOpposite()) : level.getBlockEntity(pos) instanceof PizzaBlockEntity pizzaBLockEntity ? pizzaBLockEntity.manageIngredients(player, handIn) : InteractionResult.PASS;
     }
 
     @Override

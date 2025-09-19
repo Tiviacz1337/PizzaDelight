@@ -56,7 +56,7 @@ minecraft {
             property 'forge.logging.console.level', 'debug'
 
             // Comma-separated list of namespaces to load gametests from. Empty = all namespaces.
-            property 'forge.enabledGameTestNamespaces', 'pizzacraft'
+            property 'forge.enabledGameTestNamespaces', 'pizzadelight'
 
             property 'mixin.env.remapRefMap', 'true'
             property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
@@ -75,7 +75,7 @@ minecraft {
 
             property 'forge.logging.console.level', 'debug'
 
-            property 'forge.enabledGameTestNamespaces', 'pizzacraft'
+            property 'forge.enabledGameTestNamespaces', 'pizzadelight'
 
             property 'mixin.env.remapRefMap', 'true'
             property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
@@ -97,7 +97,7 @@ minecraft {
 
             property 'forge.logging.console.level', 'debug'
 
-            property 'forge.enabledGameTestNamespaces', 'pizzacraft'
+            property 'forge.enabledGameTestNamespaces', 'pizzadelight'
 
             property 'mixin.env.remapRefMap', 'true'
             property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
@@ -173,7 +173,7 @@ dependencies {
     minecraft 'net.minecraftforge:forge:' + "${minecraft_version}" + '-' + "${forge_version}"
 
     //Required
-    implementation fg.deobf("curse.maven:farmers-delight-398521:6154802")
+    implementation fg.deobf("curse.maven:farmers-delight-398521:6917255")
 
     //Optional
     implementation fg.deobf("curse.maven:cultural-delights-574622:5512501")
