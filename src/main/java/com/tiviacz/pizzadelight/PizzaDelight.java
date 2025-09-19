@@ -1,6 +1,7 @@
 package com.tiviacz.pizzadelight;
 
 import com.tiviacz.pizzadelight.blockentity.content.BasinContent;
+import com.tiviacz.pizzadelight.blocks.dispenser.BasinDispenserBehaviour;
 import com.tiviacz.pizzadelight.blocks.dispenser.PizzaDispenserBehaviour;
 import com.tiviacz.pizzadelight.client.gui.ScreenPizza;
 import com.tiviacz.pizzadelight.client.gui.ScreenPizzaStation;
@@ -13,6 +14,7 @@ import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.DispenserBlock;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ModList;
@@ -60,6 +62,18 @@ public class PizzaDelight {
             ModNetwork.registerNetworkChannel();
             ModVanillaCompat.setup();
             BasinContent.register();
+
+            //Register basin dispenser behaviours
+            DispenserBlock.registerBehavior(Items.MILK_BUCKET, new BasinDispenserBehaviour.Milk());
+
+            DispenserBlock.registerBehavior(Items.BROWN_MUSHROOM, new BasinDispenserBehaviour.Fermenting());
+            DispenserBlock.registerBehavior(Items.RED_MUSHROOM, new BasinDispenserBehaviour.Fermenting());
+            DispenserBlock.registerBehavior(Items.SPIDER_EYE, new BasinDispenserBehaviour.Fermenting());
+            DispenserBlock.registerBehavior(Items.FERMENTED_SPIDER_EYE, new BasinDispenserBehaviour.Fermenting());
+            DispenserBlock.registerBehavior(Items.POISONOUS_POTATO, new BasinDispenserBehaviour.Fermenting());
+            DispenserBlock.registerBehavior(Items.CRIMSON_FUNGUS, new BasinDispenserBehaviour.Fermenting());
+            DispenserBlock.registerBehavior(Items.WARPED_FUNGUS, new BasinDispenserBehaviour.Fermenting());
+
             DispenserBlock.registerBehavior(ModItems.STONE_PIZZA_PEEL.get(), new PizzaDispenserBehaviour.Pickup());
             DispenserBlock.registerBehavior(ModItems.IRON_PIZZA_PEEL.get(), new PizzaDispenserBehaviour.Pickup());
             DispenserBlock.registerBehavior(ModItems.GOLDEN_PIZZA_PEEL.get(), new PizzaDispenserBehaviour.Pickup());
@@ -84,9 +98,9 @@ public class PizzaDelight {
         BlockEntityRenderers.register(ModBlockEntityTypes.PIZZA.get(), PizzaRenderer::new);
 
         //RenderTypes
-        ItemBlockRenderTypes.setRenderLayer(ModBlocks.BASIN.get(), RenderType.cutoutMipped());
         ItemBlockRenderTypes.setRenderLayer(ModBlocks.PIZZA.get(), RenderType.cutout());
         ItemBlockRenderTypes.setRenderLayer(ModBlocks.RAW_PIZZA.get(), RenderType.cutout());
+        //ItemBlockRenderTypes.setRenderLayer(ModBlocks.BASIN.get(), RenderType.cutoutMipped());
     }
 
     private void onFinish(final FMLLoadCompleteEvent event) {

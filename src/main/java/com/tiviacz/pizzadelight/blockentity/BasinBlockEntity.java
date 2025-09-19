@@ -5,10 +5,12 @@ import com.tiviacz.pizzadelight.blockentity.content.BasinContentRegistry;
 import com.tiviacz.pizzadelight.blockentity.content.BasinContentType;
 import com.tiviacz.pizzadelight.init.ModBlockEntityTypes;
 import com.tiviacz.pizzadelight.init.ModBlocks;
+import com.tiviacz.pizzadelight.init.ModItems;
 import com.tiviacz.pizzadelight.init.ModSounds;
 import com.tiviacz.pizzadelight.tags.ModTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.NonNullList;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.sounds.SoundEvents;
@@ -21,13 +23,23 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.items.ItemStackHandler;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 import vectorwing.farmersdelight.common.utility.ItemUtils;
 
+import javax.annotation.Nonnull;
+
 public class BasinBlockEntity extends BaseBlockEntity {
+    public ItemStackHandler inventory = createHandler(NonNullList.withSize(1, ItemStack.EMPTY));
     private BasinContent content = BasinContent.AIR;
     private int fermentProgress = 0;
     private final int defaultFermentTime = 1200;
+
+    private final LazyOptional<ItemStackHandler> inventoryCapability = LazyOptional.of(() -> this.inventory);
 
     private static final String BASIN_CONTENT = "BasinContent";
     private static final String FERMENT_PROGRESS = "FermentProgress";
@@ -39,6 +51,7 @@ public class BasinBlockEntity extends BaseBlockEntity {
     @Override
     public void load(CompoundTag compound) {
         super.load(compound);
+        this.inventory.deserializeNBT(compound.getCompound(INVENTORY));
         this.content = BasinContentRegistry.REGISTRY.fromString(compound.getString(BASIN_CONTENT));
         this.fermentProgress = compound.getInt(FERMENT_PROGRESS);
     }
@@ -46,6 +59,7 @@ public class BasinBlockEntity extends BaseBlockEntity {
     @Override
     public void saveAdditional(CompoundTag compound) {
         super.saveAdditional(compound);
+        compound.put(INVENTORY, this.inventory.serializeNBT());
         compound.putString(BASIN_CONTENT, content.toString());
         compound.putInt(FERMENT_PROGRESS, this.fermentProgress);
     }
@@ -54,9 +68,9 @@ public class BasinBlockEntity extends BaseBlockEntity {
         return this.content;
     }
 
-    public InteractionResult addMilk(Level level, Player player, InteractionHand hand) {
+    public InteractionResult addMilk(Level level, @Nullable Player player, @Nullable InteractionHand hand) {
         this.content = BasinContent.MILK;
-        if(!player.isCreative()) {
+        if(player != null && !player.isCreative() && hand != null) {
             player.setItemInHand(hand, new ItemStack(Items.BUCKET));
         }
         level.playSound(player, getBlockPos(), SoundEvents.BUCKET_EMPTY, SoundSource.BLOCKS, 0.8F, 1.0F);
@@ -78,11 +92,11 @@ public class BasinBlockEntity extends BaseBlockEntity {
         return InteractionResult.SUCCESS;
     }
 
-    public InteractionResult useFermetingItem(ItemStack heldStack, Level level, Player player) {
+    public InteractionResult useFermentingItem(ItemStack heldStack, Level level, @Nullable Player player) {
         if(getBasinContent() == BasinContent.MILK) {
             if(heldStack.is(ModTags.FERMENTING_ITEMS_TAG)) {
                 level.playSound(player, getBlockPos(), SoundEvents.COMPOSTER_FILL, SoundSource.BLOCKS, 1.0F, 1.0F);
-                if(!player.isCreative()) {
+                if(player == null || !player.isCreative()) {
                     heldStack.shrink(1);
                 }
 
@@ -100,6 +114,7 @@ public class BasinBlockEntity extends BaseBlockEntity {
             Direction direction = player.getDirection().getOpposite();
             ItemUtils.spawnItemEntity(getLevel(), ModBlocks.CHEESE_BLOCK.get().asItem().getDefaultInstance(), (double)getBlockPos().getX() + 0.5, (double)getBlockPos().getY() + 0.3, (double)getBlockPos().getZ() + 0.5, (double)direction.getStepX() * 0.15, 0.05, (double)direction.getStepZ() * 0.15);
             this.content = BasinContent.AIR;
+            this.inventory.setStackInSlot(0, ItemStack.EMPTY);
             level.playSound(player, getBlockPos(), SoundEvents.FUNGUS_PLACE, SoundSource.BLOCKS, 0.8F, 0.9F + level.random.nextFloat());
             this.setChanged();
             return InteractionResult.SUCCESS;
@@ -118,14 +133,17 @@ public class BasinBlockEntity extends BaseBlockEntity {
     }
 
     public int getComparatorOutput() {
-        float f = (float)this.fermentProgress / defaultFermentTime;
-        return (int)(f * 15);
+        if(this.content == BasinContent.CHEESE) {
+            return 15;
+        }
+        return 0;
     }
 
     public void finishFermenting() {
         if(getBasinContent().getContentType() == BasinContentType.FERMENTING_MILK) {
             this.fermentProgress = 0;
             this.content = BasinContent.CHEESE;
+            this.inventory.setStackInSlot(0, ModItems.CHEESE_BLOCK.get().getDefaultInstance());
         }
         setChanged();
     }
@@ -151,7 +169,7 @@ public class BasinBlockEntity extends BaseBlockEntity {
                     blockEntity.createMilkParticles((float)blockEntity.getFermentProgress() / blockEntity.getDefaultFermentTime());
                 }
             }
-            if(blockEntity.getFermentProgress() >= blockEntity.getDefaultFermentTime()) {
+            if(blockEntity.getFermentProgress() >= 40) {
                 blockEntity.finishFermenting();
             }
 
@@ -185,5 +203,39 @@ public class BasinBlockEntity extends BaseBlockEntity {
         double x = ((double)level.random.nextInt(12) / 16);
         double z = ((double)level.random.nextInt(12) / 16);
         level.addParticle(new DustParticleOptions(new Vector3f(0.91F, 0.76F, 0.31F), 1.0F), getBlockPos().getX() + x + 0.2D, getBlockPos().getY() + 0.6D, getBlockPos().getZ() + z + 0.2D, 0.0D, 0.09D, 0.0D);
+    }
+
+    private ItemStackHandler createHandler(NonNullList<ItemStack> contents) {
+        return new ItemStackHandler(contents) {
+            @Override
+            public int getSlotLimit(int slot) {
+                return 1;
+            }
+
+            @Override
+            public boolean isItemValid(int slot, @Nonnull ItemStack stack) {
+                return false;
+            }
+
+            @Override
+            protected void onContentsChanged(int slot) {
+                BasinBlockEntity.this.content = BasinContent.AIR;
+                setChanged();
+            }
+        };
+    }
+
+    @Nonnull
+    @Override
+    public <T> LazyOptional<T> getCapability(@Nonnull final Capability<T> cap, @javax.annotation.Nullable final Direction side) {
+        if(cap == ForgeCapabilities.ITEM_HANDLER)
+            return inventoryCapability.cast();
+        return super.getCapability(cap, side);
+    }
+
+    @Override
+    public void invalidateCaps() {
+        super.invalidateCaps();
+        inventoryCapability.invalidate();
     }
 }

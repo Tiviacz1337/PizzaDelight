@@ -2,6 +2,7 @@
 	"credit": "Made with Blockbench",
 	"parent": "block/block",
 	"ambientocclusion": false,
+    "render_type": "cutout",
 	"textures": {
 		"side": "pizzadelight:block/basin_side",
 		"particle": "farmersdelight:block/skillet_top",
