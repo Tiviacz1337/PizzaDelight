@@ -2,6 +2,7 @@ package com.tiviacz.pizzadelight.blocks;
 
 import com.tiviacz.pizzadelight.blockentity.BasinBlockEntity;
 import com.tiviacz.pizzadelight.blockentity.content.BasinContent;
+import com.tiviacz.pizzadelight.blocks.dispenser.BasinDispenserBehaviour;
 import com.tiviacz.pizzadelight.init.ModBlockEntityTypes;
 import com.tiviacz.pizzadelight.init.ModItems;
 import com.tiviacz.pizzadelight.tags.ModTags;
@@ -17,6 +18,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.DispenserBlock;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
@@ -49,7 +51,7 @@ public class BasinBlock extends Block implements EntityBlock {
                 return blockEntity.addMilk(level, player, handIn);
             }
             if(stack.is(ModTags.FERMENTING_ITEMS_TAG) && blockEntity.getBasinContent() == BasinContent.MILK) {
-                return blockEntity.useFermetingItem(stack, level, player);
+                return blockEntity.useFermentingItem(stack, level, player);
             }
             if(stack.is(Items.BUCKET) && blockEntity.getBasinContent() == BasinContent.MILK) {
                 return blockEntity.removeMilk(stack, level, player);

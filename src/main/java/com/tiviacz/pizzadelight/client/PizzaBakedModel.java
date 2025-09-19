@@ -17,6 +17,8 @@ import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
+import net.minecraftforge.client.model.IDynamicBakedModel;
 import net.minecraftforge.client.model.SimpleModelState;
 import net.minecraftforge.client.model.data.ModelData;
 import net.minecraftforge.client.model.data.ModelProperty;
@@ -30,7 +32,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
-public class PizzaBakedModel implements BakedModel {
+public class PizzaBakedModel implements IDynamicBakedModel {
     private final BakedModel baseModel;
     private final FaceBakery faceBakery = new FaceBakery();
 
@@ -60,16 +62,14 @@ public class PizzaBakedModel implements BakedModel {
     @Override
     @Nonnull
     public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, @Nonnull RandomSource rand, @Nonnull ModelData extraData, @Nullable RenderType renderType) {
-        if(side != null)
-        {
+        if(side != null) {
             return baseModel.getQuads(state, side, rand);
         }
         return getBakedQuadsFromIModelData(state, side, rand, extraData, renderType);
     }
 
     private List<BakedQuad> getBakedQuadsFromIModelData(@Nullable BlockState state, Direction side, @Nonnull RandomSource rand, @Nonnull ModelData data, @Nullable RenderType renderType) {
-        if(!data.has(LAYER_PROVIDERS) || !data.has(INTEGER_PROPERTY) || !data.has(IS_RAW))
-        {
+        if(!data.has(LAYER_PROVIDERS) || !data.has(INTEGER_PROPERTY) || !data.has(IS_RAW)) {
             return baseModel.getQuads(state, side, rand);
         }
 
@@ -77,17 +77,16 @@ public class PizzaBakedModel implements BakedModel {
         Optional<Integer> integerProperty = data.get(INTEGER_PROPERTY);
         Optional<Boolean> isRaw = data.get(IS_RAW);
 
-        if(!layerProviders.isPresent() || !integerProperty.isPresent() || !isRaw.isPresent())
-        {
+        if(!layerProviders.isPresent() || !integerProperty.isPresent() || !isRaw.isPresent()) {
             return baseModel.getQuads(state, side, rand);
         }
 
         List<BakedQuad> layerQuads = getLayerQuads(layerProviders.get(), integerProperty.get(), isRaw.get(), rand);
 
-        List<BakedQuad> allQuads = new LinkedList<>();
-        allQuads.addAll(baseModel.getQuads(state, side, rand, data, renderType));
-        allQuads.addAll(layerQuads);
-        return allQuads;
+        List<BakedQuad> ret = new LinkedList<>();
+        ret.addAll(baseModel.getQuads(state, side, rand, data, renderType));
+        ret.addAll(layerQuads);
+        return ret;
     }
 
     @Override
@@ -222,13 +221,8 @@ public class PizzaBakedModel implements BakedModel {
             }
         }
 
-        for(int i = 0; i < layers.size(); i++)
-        {
+        for(int i = 0; i < layers.size(); i++) {
             if(layers.get(i) == null) continue;
-
-            //builder.add(getQuadForLayer(layers.get(i), Direction.UP, rotation, UV[(rotation / 90) % 4][integerProperty],
-            // VECTORS[integerProperty][0], VECTORS[integerProperty][1], VECTORS[integerProperty][2],
-            // VECTORS[7][0], VECTORS[7][1], VECTORS[7][2], tintIndexes.get(i)));
 
             builder.add(getQuadForLayer(layers.get(i), Direction.UP, rotation, UV_SQUARE[(rotation / 90) % 4][integerProperty],
                     VECTORS_SQUARE[0][integerProperty][0], VECTORS_SQUARE[0][integerProperty][1], VECTORS_SQUARE[0][integerProperty][2],
@@ -263,7 +257,7 @@ public class PizzaBakedModel implements BakedModel {
 
         TextureAtlasSprite layersTextures = Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(layerLocation);
 
-        final ResourceLocation DUMMY_RL = new ResourceLocation("dummy_name");
+        final ResourceLocation DUMMY_RL = ResourceLocation.withDefaultNamespace("dummy_name");
         BakedQuad bakedQuad = faceBakery.bakeQuad(from, to, blockElementFace, layersTextures, face, new SimpleModelState(Transformation.identity()), null, true, DUMMY_RL);
 
         return bakedQuad;

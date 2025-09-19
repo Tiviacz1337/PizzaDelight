@@ -223,6 +223,12 @@ public class PizzaBlockEntity extends BaseBlockEntity implements MenuProvider, N
         return super.getCapability(cap, side);
     }
 
+    @Override
+    public void invalidateCaps() {
+        super.invalidateCaps();
+        inventoryCapability.invalidate();
+    }
+
     // ======== CONTAINER ========
 
     @Override
