@@ -40,9 +40,8 @@ public class NBTUtils {
     }
 
     public static void saveInventoryToStack(ItemStack stack, ItemStackHandler handler) {
-        CompoundTag compound = new CompoundTag();
+        CompoundTag compound = stack.getOrCreateTag();
         compound.put(TAG_INVENTORY, handler.serializeNBT());
-        stack.setTag(compound);
     }
 
     public static void loadInventoryFromStack(ItemStack stack, ItemStackHandler handler) {
