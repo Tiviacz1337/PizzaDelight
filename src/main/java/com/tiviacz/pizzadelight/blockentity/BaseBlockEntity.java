@@ -11,6 +11,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.neoforged.neoforge.items.IItemHandlerModifiable;
 
 import javax.annotation.Nullable;
@@ -37,10 +38,12 @@ public class BaseBlockEntity extends BlockEntity {
         notifyBlockUpdate();
     }
 
-    private void notifyBlockUpdate() {
-        BlockState blockstate = getLevel().getBlockState(getBlockPos());
-        getLevel().setBlocksDirty(getBlockPos(), blockstate, blockstate);
-        getLevel().sendBlockUpdated(getBlockPos(), blockstate, blockstate, Block.UPDATE_CLIENTS);
+    protected void notifyBlockUpdate() {
+        if(getLevel() == null || getLevel().isClientSide) {
+            return;
+        }
+        getLevel().sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_ALL);
+        getLevel().gameEvent(GameEvent.BLOCK_CHANGE, getBlockPos(), GameEvent.Context.of(getBlockState()));
     }
 
     @Override
@@ -57,6 +60,6 @@ public class BaseBlockEntity extends BlockEntity {
 
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider pRegistries) {
-        return this.saveWithoutMetadata(pRegistries);
+        return this.saveWithoutMetadata(pRegistries).copy();
     }
 }

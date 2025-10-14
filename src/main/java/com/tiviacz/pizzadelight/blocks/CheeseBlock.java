@@ -51,7 +51,7 @@ public class CheeseBlock extends Block {
 
     @Override
     public ItemInteractionResult useItemOn(ItemStack heldStack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
-        return heldStack.is(ModTags.KNIVES) ? this.cutCheese(level, pos, state, player) : ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        return heldStack.is(ModTags.KNIVES) ? this.cutCheese(level, pos, state, player.getDirection().getOpposite()) : ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
     }
 
     @Override
@@ -91,7 +91,7 @@ public class CheeseBlock extends Block {
         }
     }
 
-    protected ItemInteractionResult cutCheese(Level level, BlockPos pos, BlockState state, Player player) {
+    protected ItemInteractionResult cutCheese(Level level, BlockPos pos, BlockState state, Direction direction) {
         int bites = state.getValue(BITES);
         ItemStack cheeseStack = ModItems.CHEESE.toStack();
 
@@ -101,7 +101,6 @@ public class CheeseBlock extends Block {
             level.removeBlock(pos, false);
         }
 
-        Direction direction = player.getDirection().getOpposite();
         ItemUtils.spawnItemEntity(level, cheeseStack, (double)pos.getX() + 0.5, (double)pos.getY() + 0.5, (double)pos.getZ() + 0.5, (double)direction.getStepX() * 0.15, 0.05, (double)direction.getStepZ() * 0.15);
         level.playSound(null, pos, SoundEvents.FUNGUS_BREAK, SoundSource.PLAYERS, 0.8F, 0.8F);
         return ItemInteractionResult.SUCCESS;

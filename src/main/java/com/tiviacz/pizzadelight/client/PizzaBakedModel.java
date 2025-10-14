@@ -17,6 +17,7 @@ import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.neoforge.client.model.IDynamicBakedModel;
 import net.neoforged.neoforge.client.model.SimpleModelState;
 import net.neoforged.neoforge.client.model.data.ModelData;
 import net.neoforged.neoforge.client.model.data.ModelProperty;
@@ -30,7 +31,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
-public class PizzaBakedModel implements BakedModel {
+public class PizzaBakedModel implements IDynamicBakedModel {
     private final BakedModel baseModel;
     private final FaceBakery faceBakery = new FaceBakery();
 

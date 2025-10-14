@@ -3,6 +3,7 @@ package com.tiviacz.pizzadelight.handlers;
 import com.tiviacz.pizzadelight.PizzaDelight;
 import com.tiviacz.pizzadelight.blockentity.PizzaBlockEntity;
 import com.tiviacz.pizzadelight.components.PizzaIngredients;
+import com.tiviacz.pizzadelight.init.ModBlockEntityTypes;
 import com.tiviacz.pizzadelight.init.ModBlocks;
 import com.tiviacz.pizzadelight.init.ModDataComponents;
 import com.tiviacz.pizzadelight.init.ModNetwork;
@@ -19,6 +20,8 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
@@ -68,5 +71,15 @@ public class ModEventHandler {
             if(ingredients.get(tintIndex).isEmpty()) return 14858625;
             return color;
         }, ModBlocks.RAW_PIZZA.get(), ModBlocks.PIZZA.get());
+    }
+
+    @SubscribeEvent
+    public static void registerCapabilities(RegisterCapabilitiesEvent event) {
+        event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntityTypes.PIZZA.get(), (blockEntity, side) -> {
+            if(blockEntity instanceof PizzaBlockEntity pizzaBlockEntity) {
+                return pizzaBlockEntity.inventory;
+            }
+            return new ItemStackHandler(0);
+        });
     }
 }

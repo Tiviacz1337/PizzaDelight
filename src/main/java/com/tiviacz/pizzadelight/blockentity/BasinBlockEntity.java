@@ -80,7 +80,7 @@ public class BasinBlockEntity extends BaseBlockEntity {
         return ItemInteractionResult.SUCCESS;
     }
 
-    public ItemInteractionResult useFermetingItem(ItemStack heldStack, Level level, Player player) {
+    public ItemInteractionResult useFermentingItem(ItemStack heldStack, Level level, Player player) {
         if(getBasinContent() == BasinContent.MILK) {
             if(heldStack.is(ModTags.FERMENTING_ITEMS_TAG)) {
                 level.playSound(player, getBlockPos(), SoundEvents.COMPOSTER_FILL, SoundSource.BLOCKS, 1.0F, 1.0F);

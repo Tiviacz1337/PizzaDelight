@@ -101,11 +101,7 @@ public class ModClientEventHandler {
         for(BlockState blockState : ModBlocks.PIZZA.get().getStateDefinition().getPossibleStates()) {
             ModelResourceLocation variantMRL = BlockModelShaper.stateToModelLocation(blockState);
             BakedModel existingModel = event.getModels().get(variantMRL);
-            if(existingModel == null) {
-                //LOGGER.warn("Did not find the expected vanilla baked model(s) for blockAltimeter in registry");
-            } else if(existingModel instanceof PizzaBakedModel) {
-                // LOGGER.warn("Tried to replace AltimeterBakedModel twice");
-            } else {
+            if(existingModel != null && !(existingModel instanceof PizzaBakedModel)) {
                 PizzaBakedModel customModel = new PizzaBakedModel(existingModel);
                 event.getModels().put(variantMRL, customModel);
             }
@@ -114,11 +110,7 @@ public class ModClientEventHandler {
         for(BlockState blockState : ModBlocks.RAW_PIZZA.get().getStateDefinition().getPossibleStates()) {
             ModelResourceLocation variantMRL = BlockModelShaper.stateToModelLocation(blockState);
             BakedModel existingModel = event.getModels().get(variantMRL);
-            if(existingModel == null) {
-                //LOGGER.warn("Did not find the expected vanilla baked model(s) for blockAltimeter in registry");
-            } else if(existingModel instanceof PizzaBakedModel) {
-                // LOGGER.warn("Tried to replace AltimeterBakedModel twice");
-            } else {
+            if(existingModel != null && !(existingModel instanceof PizzaBakedModel)) {
                 PizzaBakedModel customModel = new PizzaBakedModel(existingModel);
                 event.getModels().put(variantMRL, customModel);
             }

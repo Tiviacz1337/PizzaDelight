@@ -49,7 +49,7 @@ public class BasinBlock extends Block implements EntityBlock {
                 return blockEntity.addMilk(level, player, hand);
             }
             if(stack.is(ModTags.FERMENTING_ITEMS_TAG) && blockEntity.getBasinContent() == BasinContent.MILK) {
-                return blockEntity.useFermetingItem(stack, level, player);
+                return blockEntity.useFermentingItem(stack, level, player);
             }
             if(stack.is(Tags.Items.BUCKETS_EMPTY) && blockEntity.getBasinContent() == BasinContent.MILK) {
                 return blockEntity.removeMilk(stack, level, player);
