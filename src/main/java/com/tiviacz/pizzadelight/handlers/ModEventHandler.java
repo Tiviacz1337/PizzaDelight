@@ -1,6 +1,7 @@
 package com.tiviacz.pizzadelight.handlers;
 
 import com.tiviacz.pizzadelight.PizzaDelight;
+import com.tiviacz.pizzadelight.blockentity.BasinBlockEntity;
 import com.tiviacz.pizzadelight.blockentity.PizzaBlockEntity;
 import com.tiviacz.pizzadelight.components.PizzaIngredients;
 import com.tiviacz.pizzadelight.init.ModBlockEntityTypes;
@@ -78,6 +79,12 @@ public class ModEventHandler {
         event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntityTypes.PIZZA.get(), (blockEntity, side) -> {
             if(blockEntity instanceof PizzaBlockEntity pizzaBlockEntity) {
                 return pizzaBlockEntity.inventory;
+            }
+            return new ItemStackHandler(0);
+        });
+        event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntityTypes.BASIN.get(), (blockEntity, side) -> {
+            if(blockEntity instanceof BasinBlockEntity basinBlockEntity) {
+                return basinBlockEntity.inventory;
             }
             return new ItemStackHandler(0);
         });

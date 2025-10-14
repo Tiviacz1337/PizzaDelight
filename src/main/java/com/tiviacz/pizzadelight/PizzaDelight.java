@@ -1,6 +1,7 @@
 package com.tiviacz.pizzadelight;
 
 import com.tiviacz.pizzadelight.blockentity.content.BasinContent;
+import com.tiviacz.pizzadelight.blocks.dispenser.BasinDispenserBehaviour;
 import com.tiviacz.pizzadelight.blocks.dispenser.PizzaDispenserBehaviour;
 import com.tiviacz.pizzadelight.client.renderer.BasinRenderer;
 import com.tiviacz.pizzadelight.client.renderer.PizzaRenderer;
@@ -9,6 +10,7 @@ import com.tiviacz.pizzadelight.init.*;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.DispenserBlock;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
@@ -52,6 +54,17 @@ public class PizzaDelight {
         event.enqueueWork(() -> {
             ModVanillaCompat.setup();
             BasinContent.register();
+            //Register basin dispenser behaviours
+            DispenserBlock.registerBehavior(Items.MILK_BUCKET, new BasinDispenserBehaviour.Milk());
+
+            DispenserBlock.registerBehavior(Items.BROWN_MUSHROOM, new BasinDispenserBehaviour.Fermenting());
+            DispenserBlock.registerBehavior(Items.RED_MUSHROOM, new BasinDispenserBehaviour.Fermenting());
+            DispenserBlock.registerBehavior(Items.SPIDER_EYE, new BasinDispenserBehaviour.Fermenting());
+            DispenserBlock.registerBehavior(Items.FERMENTED_SPIDER_EYE, new BasinDispenserBehaviour.Fermenting());
+            DispenserBlock.registerBehavior(Items.POISONOUS_POTATO, new BasinDispenserBehaviour.Fermenting());
+            DispenserBlock.registerBehavior(Items.CRIMSON_FUNGUS, new BasinDispenserBehaviour.Fermenting());
+            DispenserBlock.registerBehavior(Items.WARPED_FUNGUS, new BasinDispenserBehaviour.Fermenting());
+
             DispenserBlock.registerBehavior(ModItems.STONE_PIZZA_PEEL.get(), new PizzaDispenserBehaviour.Pickup());
             DispenserBlock.registerBehavior(ModItems.IRON_PIZZA_PEEL.get(), new PizzaDispenserBehaviour.Pickup());
             DispenserBlock.registerBehavior(ModItems.GOLDEN_PIZZA_PEEL.get(), new PizzaDispenserBehaviour.Pickup());
