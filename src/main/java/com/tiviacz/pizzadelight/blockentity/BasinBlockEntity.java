@@ -169,7 +169,7 @@ public class BasinBlockEntity extends BaseBlockEntity {
                     blockEntity.createMilkParticles((float)blockEntity.getFermentProgress() / blockEntity.getDefaultFermentTime());
                 }
             }
-            if(blockEntity.getFermentProgress() >= 40) {
+            if(blockEntity.getFermentProgress() >= blockEntity.getDefaultFermentTime()) {
                 blockEntity.finishFermenting();
             }
 
@@ -219,7 +219,9 @@ public class BasinBlockEntity extends BaseBlockEntity {
 
             @Override
             protected void onContentsChanged(int slot) {
-                BasinBlockEntity.this.content = BasinContent.AIR;
+                if(getStackInSlot(slot).isEmpty()) {
+                    BasinBlockEntity.this.content = BasinContent.AIR;
+                }
                 setChanged();
             }
         };
