@@ -11,6 +11,7 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -52,7 +53,7 @@ public class RawPizzaBlock extends AbstractPizzaBlock {
     @Override
     protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
         ItemStack heldStack = player.getItemInHand(hand);
-        return heldStack.getItem() instanceof PizzaPeelItem ? this.pickUpPizza(level, pos, state, player.getDirection().getOpposite()) : ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        return heldStack.getItem() instanceof PizzaPeelItem ? this.pickUpPizza(level, pos, state, player.getDirection().getOpposite()) : level.getBlockEntity(pos) instanceof PizzaBlockEntity pizzaBLockEntity ? pizzaBLockEntity.manageIngredients(player, hand) : ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
     }
 
     @Override

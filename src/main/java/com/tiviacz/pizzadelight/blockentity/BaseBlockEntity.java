@@ -39,11 +39,9 @@ public class BaseBlockEntity extends BlockEntity {
     }
 
     protected void notifyBlockUpdate() {
-        if(getLevel() == null || getLevel().isClientSide) {
-            return;
-        }
-        getLevel().sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_ALL);
-        getLevel().gameEvent(GameEvent.BLOCK_CHANGE, getBlockPos(), GameEvent.Context.of(getBlockState()));
+        BlockState blockstate = getLevel().getBlockState(getBlockPos());
+        level.setBlocksDirty(getBlockPos(), blockstate, blockstate);
+        level.sendBlockUpdated(getBlockPos(), blockstate, blockstate, Block.UPDATE_CLIENTS);
     }
 
     @Override
