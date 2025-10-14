@@ -24,9 +24,9 @@ import net.minecraft.resources.ResourceLocation;
 import java.util.Random;
 
 public class BasinRenderer implements BlockEntityRenderer<BasinBlockEntity> {
-    private static final ResourceLocation MILK_TEX = ResourceLocation.fromNamespaceAndPath(PizzaDelight.MODID, "textures/block/milk.png");
-    private static final ResourceLocation CHEESE_TEX = ResourceLocation.fromNamespaceAndPath(PizzaDelight.MODID, "textures/block/cheese.png");
-    private static final ResourceLocation OLIVE_OIL_TEX = ResourceLocation.fromNamespaceAndPath(PizzaDelight.MODID, "textures/block/olive_oil.png");
+    private static final ResourceLocation MILK_TEX = new ResourceLocation(PizzaDelight.MODID, "textures/block/milk.png");
+    private static final ResourceLocation CHEESE_TEX = new ResourceLocation(PizzaDelight.MODID, "textures/block/cheese.png");
+    private static final ResourceLocation OLIVE_OIL_TEX = new ResourceLocation(PizzaDelight.MODID, "textures/block/olive_oil.png");
     private final Random rand = new Random();
 
     protected ContentModel cheese;
@@ -68,7 +68,7 @@ public class BasinRenderer implements BlockEntityRenderer<BasinBlockEntity> {
     }
 
     public static class ContentModel extends Model {
-        public static final ResourceLocation CONTENT = ResourceLocation.fromNamespaceAndPath(PizzaDelight.MODID, "content");
+        public static final ResourceLocation CONTENT = new ResourceLocation(PizzaDelight.MODID, "content");
         public static final ModelLayerLocation CONTENT_LAYER = new ModelLayerLocation(CONTENT, "main");
         private final ModelPart content;
 

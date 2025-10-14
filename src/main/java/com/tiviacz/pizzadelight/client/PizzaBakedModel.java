@@ -257,7 +257,7 @@ public class PizzaBakedModel implements IDynamicBakedModel {
 
         TextureAtlasSprite layersTextures = Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(layerLocation);
 
-        final ResourceLocation DUMMY_RL = ResourceLocation.withDefaultNamespace("dummy_name");
+        final ResourceLocation DUMMY_RL = new ResourceLocation("dummy_name");
         BakedQuad bakedQuad = faceBakery.bakeQuad(from, to, blockElementFace, layersTextures, face, new SimpleModelState(Transformation.identity()), null, true, DUMMY_RL);
 
         return bakedQuad;

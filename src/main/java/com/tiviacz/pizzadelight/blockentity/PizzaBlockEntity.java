@@ -266,7 +266,7 @@ public class PizzaBlockEntity extends BaseBlockEntity implements MenuProvider, N
     }
 
     public boolean canAddIngredient(ItemStack stack, int slot) {
-        if(stack.getItemHolder().is(ResourceLocation.fromNamespaceAndPath("some_assembly_required", "sandwich")))
+        if(stack.getItemHolder().is(new ResourceLocation("some_assembly_required", "sandwich")))
             return false;
 
         if(stack.getItem().getFoodProperties() != null || stack.is(ModTags.INGREDIENTS)) {

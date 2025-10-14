@@ -21,7 +21,7 @@ import java.util.Optional;
 
 @OnlyIn(Dist.CLIENT)
 public class ScreenPizza extends AbstractContainerScreen<PizzaMenu> implements MenuAccess<PizzaMenu> {
-    public static final ResourceLocation SCREEN_PIZZA = ResourceLocation.fromNamespaceAndPath(PizzaDelight.MODID, "textures/gui/pizza.png");
+    public static final ResourceLocation SCREEN_PIZZA = new ResourceLocation(PizzaDelight.MODID, "textures/gui/pizza.png");
     private final ScreenImage HUNGER_INFO = new ScreenImage(126, 40, 13, 13);
     private final PizzaBlockEntity blockEntity;
 

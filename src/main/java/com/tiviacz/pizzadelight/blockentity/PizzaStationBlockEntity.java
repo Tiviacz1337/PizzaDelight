@@ -74,7 +74,7 @@ public class PizzaStationBlockEntity extends BaseBlockEntity implements MenuProv
             @Override
             public boolean isItemValid(int slot, @NotNull ItemStack stack) {
                 //Prevent sandwiches
-                if(stack.getItemHolder().is(ResourceLocation.fromNamespaceAndPath("some_assembly_required", "sandwich")))
+                if(stack.getItemHolder().is(new ResourceLocation("some_assembly_required", "sandwich")))
                     return false;
 
                 //Output
