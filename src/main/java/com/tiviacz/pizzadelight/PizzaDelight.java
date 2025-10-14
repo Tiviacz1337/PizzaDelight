@@ -1,6 +1,7 @@
 package com.tiviacz.pizzadelight;
 
 import com.tiviacz.pizzadelight.blockentity.content.BasinContent;
+import com.tiviacz.pizzadelight.blocks.dispenser.PizzaDispenserBehaviour;
 import com.tiviacz.pizzadelight.client.renderer.BasinRenderer;
 import com.tiviacz.pizzadelight.client.renderer.PizzaRenderer;
 import com.tiviacz.pizzadelight.config.PizzaDelightConfig;
@@ -8,6 +9,7 @@ import com.tiviacz.pizzadelight.init.*;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
+import net.minecraft.world.level.block.DispenserBlock;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
@@ -50,6 +52,17 @@ public class PizzaDelight {
         event.enqueueWork(() -> {
             ModVanillaCompat.setup();
             BasinContent.register();
+            DispenserBlock.registerBehavior(ModItems.STONE_PIZZA_PEEL.get(), new PizzaDispenserBehaviour.Pickup());
+            DispenserBlock.registerBehavior(ModItems.IRON_PIZZA_PEEL.get(), new PizzaDispenserBehaviour.Pickup());
+            DispenserBlock.registerBehavior(ModItems.GOLDEN_PIZZA_PEEL.get(), new PizzaDispenserBehaviour.Pickup());
+            DispenserBlock.registerBehavior(ModItems.DIAMOND_PIZZA_PEEL.get(), new PizzaDispenserBehaviour.Pickup());
+            DispenserBlock.registerBehavior(ModItems.NETHERITE_PIZZA_PEEL.get(), new PizzaDispenserBehaviour.Pickup());
+
+            DispenserBlock.registerBehavior(vectorwing.farmersdelight.common.registry.ModItems.FLINT_KNIFE.get(), new PizzaDispenserBehaviour.CutSlice());
+            DispenserBlock.registerBehavior(vectorwing.farmersdelight.common.registry.ModItems.IRON_KNIFE.get(), new PizzaDispenserBehaviour.CutSlice());
+            DispenserBlock.registerBehavior(vectorwing.farmersdelight.common.registry.ModItems.GOLDEN_KNIFE.get(), new PizzaDispenserBehaviour.CutSlice());
+            DispenserBlock.registerBehavior(vectorwing.farmersdelight.common.registry.ModItems.DIAMOND_KNIFE.get(), new PizzaDispenserBehaviour.CutSlice());
+            DispenserBlock.registerBehavior(vectorwing.farmersdelight.common.registry.ModItems.NETHERITE_KNIFE.get(), new PizzaDispenserBehaviour.CutSlice());
         });
     }
 
@@ -59,9 +72,9 @@ public class PizzaDelight {
         BlockEntityRenderers.register(ModBlockEntityTypes.PIZZA.get(), PizzaRenderer::new);
 
         //RenderTypes
-        ItemBlockRenderTypes.setRenderLayer(ModBlocks.PIZZA.get(), RenderType.cutoutMipped());
-        ItemBlockRenderTypes.setRenderLayer(ModBlocks.RAW_PIZZA.get(), RenderType.cutoutMipped());
-        ItemBlockRenderTypes.setRenderLayer(ModBlocks.BASIN.get(), RenderType.cutoutMipped());
+        ItemBlockRenderTypes.setRenderLayer(ModBlocks.PIZZA.get(), RenderType.cutout());
+        ItemBlockRenderTypes.setRenderLayer(ModBlocks.RAW_PIZZA.get(), RenderType.cutout());
+        ItemBlockRenderTypes.setRenderLayer(ModBlocks.BASIN.get(), RenderType.cutout());
     }
 
     private void onFinish(final FMLLoadCompleteEvent event) {

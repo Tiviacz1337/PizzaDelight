@@ -7,41 +7,27 @@ import com.tiviacz.pizzadelight.items.PizzaPeelItem;
 import com.tiviacz.pizzadelight.util.RenderUtils;
 import com.tiviacz.pizzadelight.util.Utils;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.LevelReader;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.HitResult;
-import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
 import javax.annotation.Nullable;
 
-public class RawPizzaBlock extends Block implements EntityBlock {
-    private static final VoxelShape SHAPE = box(1.0D, 0.0D, 1.0D, 15.0D, 1.0D, 15.0D);
-
+public class RawPizzaBlock extends AbstractPizzaBlock {
     public RawPizzaBlock(Properties properties) {
         super(properties);
-    }
-
-    @Override
-    public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return SHAPE;
     }
 
     @Override
@@ -63,31 +49,11 @@ public class RawPizzaBlock extends Block implements EntityBlock {
         }
     }
 
- /*   @Override
-    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult)
-    {
-        if(player.getItemInHand(hand).getItem() instanceof PizzaPeelItem && level.getBlockEntity(pos) instanceof PizzaBlockEntity blockEntity)
-        {
-            ItemStack pizza = asItem().getDefaultInstance();
-            pizza = blockEntity.cloneToItemStack(pizza);
-
-            if(!level.isClientSide)
-            {
-                level.addFreshEntity(new ItemEntity(level, pos.getX(), pos.getY(), pos.getZ(), pizza));
-            }
-
-            level.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
-
-            return ItemInteractionResult.SUCCESS;
-        }
-
-        if(level.getBlockEntity(pos) instanceof PizzaBlockEntity blockEntity)
-        {
-            //blockEntity.openGUI(player, blockEntity, pos);
-            //return blockEntity.onBlockActivated(player, hand);
-        }
-        return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
-    } */
+    @Override
+    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+        ItemStack heldStack = player.getItemInHand(hand);
+        return heldStack.getItem() instanceof PizzaPeelItem ? this.pickUpPizza(level, pos, state, player.getDirection().getOpposite()) : ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+    }
 
     @Override
     public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
@@ -110,33 +76,8 @@ public class RawPizzaBlock extends Block implements EntityBlock {
     }
 
     @Override
-    public ItemStack getCloneItemStack(BlockState state, HitResult target, LevelReader level, BlockPos pos, Player player) {
-        ItemStack stack = super.getCloneItemStack(state, target, level, pos, player);
-        if(level.getBlockEntity(pos) instanceof PizzaBlockEntity blockEntity) {
-            stack = blockEntity.cloneToItemStack(stack);
-            return stack;
-        }
-        return stack;
-    }
-
-    @Override
-    public BlockState updateShape(BlockState stateIn, Direction facing, BlockState facingState, LevelAccessor level, BlockPos currentPos, BlockPos facingPos) {
-        return facing == Direction.DOWN && !stateIn.canSurvive(level, currentPos) ? Blocks.AIR.defaultBlockState() : super.updateShape(stateIn, facing, facingState, level, currentPos, facingPos);
-    }
-
-    @Override
-    public boolean canSurvive(BlockState state, LevelReader level, BlockPos pos) {
-        return level.getBlockState(pos.below()).isSolid();
-    }
-
-    @Override
     @Nullable
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> blockEntityType) {
         return Utils.getTicker(blockEntityType, ModBlockEntityTypes.PIZZA.get(), PizzaBlockEntity::tick);
-    }
-
-    @Override
-    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        return new PizzaBlockEntity(pos, state);
     }
 }
