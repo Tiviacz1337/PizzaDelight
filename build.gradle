@@ -116,7 +116,7 @@ dependencies {
     // We add the full version to localRuntime, not runtimeOnly, so that we do not publish a dependency on it
     // localRuntime "mezz.jei:jei-${mc_version}-neoforge:${jei_version}"
 
-    implementation "curse.maven:farmers-delight-398521:5566383"
+    implementation "curse.maven:farmers-delight-398521:8001010"
     implementation "curse.maven:appleskin-248787:5586600"
 
     implementation("mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}")

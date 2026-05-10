@@ -68,7 +68,7 @@ public class PizzaBlock extends AbstractPizzaBlock {
 
     @Override
     public ItemInteractionResult useItemOn(ItemStack heldStack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
-        return heldStack.is(ModTags.KNIVES) ? this.cutSlice(level, pos, state, player.getDirection().getOpposite()) : (heldStack.getItem() instanceof PizzaPeelItem && state.getValue(SLICES) == 0) ? this.pickUpPizza(level, pos, state, player.getDirection().getOpposite()) : ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        return heldStack.is(ModTags.Items.KNIVES) ? this.cutSlice(level, pos, state, player.getDirection().getOpposite()) : (heldStack.getItem() instanceof PizzaPeelItem && state.getValue(SLICES) == 0) ? this.pickUpPizza(level, pos, state, player.getDirection().getOpposite()) : ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
     }
 
     @Override

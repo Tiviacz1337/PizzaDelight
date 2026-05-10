@@ -344,7 +344,7 @@ public class PizzaBlockEntity extends BaseBlockEntity implements MenuProvider, N
         boolean save = false;
 
         if(blockEntity.isRaw()) {
-            if(blockEntity.bakingTime == 0 && level.getBlockState(pos.below()).is(vectorwing.farmersdelight.common.tag.ModTags.HEAT_SOURCES)) {
+            if(blockEntity.bakingTime == 0 && level.getBlockState(pos.below()).is(vectorwing.farmersdelight.common.tag.ModTags.Blocks.HEAT_SOURCES)) {
                 blockEntity.bakingTime = 1;
                 save = true;
             }
@@ -361,7 +361,7 @@ public class PizzaBlockEntity extends BaseBlockEntity implements MenuProvider, N
                 }
             }
 
-            if(!level.getBlockState(pos.below()).is(vectorwing.farmersdelight.common.tag.ModTags.HEAT_SOURCES)) {
+            if(!level.getBlockState(pos.below()).is(vectorwing.farmersdelight.common.tag.ModTags.Blocks.HEAT_SOURCES)) {
                 blockEntity.bakingTime = 0;
             }
         }
